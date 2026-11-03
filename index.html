@@ -243,8 +243,90 @@
     };
 
     // ==========================================
-    // 2. INITIAL REALISTIC DATA FOR ARNOLD
+    // 2. INITIAL REALISTIC DATA FOR ARNOLD & ROLES
     // ==========================================
+    const DEFAULT_ACCOUNTS = [
+      {
+        id: 'acc_arnold',
+        name: 'Arnold Moreno',
+        email: 'aema21032000@gmail.com',
+        role: 'admin', // 'admin' | 'editor' | 'viewer' | 'debtor'
+        avatar: '👑',
+        debtorFriendName: '',
+        pin: ''
+      },
+      {
+        id: 'acc_gestor',
+        name: 'Gestor Financiero',
+        email: 'gestor@trisagio.pe',
+        role: 'editor',
+        avatar: '✏️',
+        debtorFriendName: '',
+        pin: ''
+      },
+      {
+        id: 'acc_viewer',
+        name: 'Auditor Externo',
+        email: 'auditor@deudacero.pe',
+        role: 'viewer',
+        avatar: '👁️',
+        debtorFriendName: '',
+        pin: ''
+      },
+      {
+        id: 'acc_amigo_cmr',
+        name: 'Amigo 1 (CMR)',
+        email: 'amigo1@gmail.com',
+        role: 'debtor',
+        avatar: '🤝',
+        debtorFriendName: 'Amigo 1 (CMR)',
+        pin: ''
+      }
+    ];
+
+    const ROLE_METADATA = {
+      admin: {
+        id: 'admin',
+        label: 'Administrador Total',
+        badge: '👑 Admin',
+        color: 'from-amber-500 to-yellow-600',
+        textColor: 'text-amber-400',
+        borderColor: 'border-amber-500/40',
+        bgColor: 'bg-amber-500/15',
+        description: 'Control absoluto del sistema: crea, edita y elimina compras, tarjetas, usuarios, roles y conexión a Supabase.'
+      },
+      editor: {
+        id: 'editor',
+        label: 'Gestor Financiero',
+        badge: '✏️ Gestor',
+        color: 'from-blue-500 to-indigo-600',
+        textColor: 'text-blue-400',
+        borderColor: 'border-blue-500/40',
+        bgColor: 'bg-blue-500/15',
+        description: 'Puede registrar y editar compras, cuotas y pagos. No puede alterar usuarios administradores ni la base de datos.'
+      },
+      viewer: {
+        id: 'viewer',
+        label: 'Auditor / Consulta',
+        badge: '👁️ Lector',
+        color: 'from-purple-500 to-violet-600',
+        textColor: 'text-purple-400',
+        borderColor: 'border-purple-500/40',
+        bgColor: 'bg-purple-500/15',
+        description: 'Modo solo lectura: puede ver dashboards, gráficos, cronogramas y PDF. Todas las ediciones están deshabilitadas.'
+      },
+      debtor: {
+        id: 'debtor',
+        label: 'Deudor / Amigo Asignado',
+        badge: '🤝 Deudor',
+        color: 'from-emerald-500 to-teal-600',
+        textColor: 'text-emerald-400',
+        borderColor: 'border-emerald-500/40',
+        bgColor: 'bg-emerald-500/15',
+        description: 'Vista personalizada filtrada: únicamente ve las compras y montos que le han sido asignados a él.'
+      }
+    };
+
     const ARNOLD_PROFILE = {
       userName: 'Arnold Moreno',
       appTitle: 'Deuda Cero',
@@ -629,6 +711,44 @@
       const [showNotifications, setShowNotifications] = useState(false);
       const [showTemplateModal, setShowTemplateModal] = useState(false);
       const [showCloudDatabaseModal, setShowCloudDatabaseModal] = useState(false);
+      const [showAccountsManager, setShowAccountsManager] = useState(false);
+
+      // ==========================================
+      // ROLES & ACCOUNTS RBAC ENGINE
+      // ==========================================
+      const [accounts, setAccounts] = useState(() => loadLocal('dc_v9_accounts', DEFAULT_ACCOUNTS));
+      const [currentAccountId, setCurrentAccountId] = useState(() => loadLocal('dc_v9_current_account_id', 'acc_arnold'));
+
+      const currentAccount = useMemo(() => {
+        const found = accounts.find(a => a.id === currentAccountId);
+        return found || accounts[0] || DEFAULT_ACCOUNTS[0];
+      }, [accounts, currentAccountId]);
+
+      const currentRole = currentAccount?.role || 'admin';
+
+      const permissions = useMemo(() => {
+        const isSuperAdmin = currentRole === 'admin';
+        const isEditor = currentRole === 'editor';
+        const isViewer = currentRole === 'viewer';
+        const isDebtor = currentRole === 'debtor';
+
+        return {
+          role: currentRole,
+          roleMeta: ROLE_METADATA[currentRole] || ROLE_METADATA.admin,
+          canCreatePurchase: isSuperAdmin || isEditor,
+          canEditPurchase: isSuperAdmin || isEditor,
+          canDeletePurchase: isSuperAdmin,
+          canCreateCard: isSuperAdmin || isEditor,
+          canEditCard: isSuperAdmin || isEditor,
+          canDeleteCard: isSuperAdmin,
+          canManageCloud: isSuperAdmin,
+          canManageAccounts: isSuperAdmin,
+          canExportImport: isSuperAdmin || isEditor,
+          isReadOnly: isViewer,
+          isDebtorOnly: isDebtor,
+          debtorFriendName: currentAccount?.debtorFriendName || ''
+        };
+      }, [currentRole, currentAccount]);
 
       // ==========================================
       // REAL-TIME CLOUD DATABASE ENGINE (SUPABASE REALTIME + FIREBASE + REST)
@@ -703,12 +823,15 @@
           const pur = typeof remoteData.purchases === 'string' ? JSON.parse(remoteData.purchases) : remoteData.purchases;
           const sub = typeof remoteData.subscriptions === 'string' ? JSON.parse(remoteData.subscriptions) : remoteData.subscriptions;
           const fr = typeof remoteData.friends === 'string' ? JSON.parse(remoteData.friends) : remoteData.friends;
+          const acc = typeof remoteData.accounts === 'string' ? JSON.parse(remoteData.accounts) : remoteData.accounts;
 
           if (p) setProfile(p);
           if (Array.isArray(c)) setCards(c);
           if (Array.isArray(pur)) setPurchases(pur);
           if (Array.isArray(sub)) setSubscriptions(sub);
           if (Array.isArray(fr)) setFriends(fr);
+          if (Array.isArray(acc) && acc.length > 0) setAccounts(acc);
+          if (remoteData.currentAccountId) setCurrentAccountId(remoteData.currentAccountId);
           if (typeof remoteData.exchangeRate === 'number') setExchangeRate(remoteData.exchangeRate);
           if (typeof remoteData.lastMonthDebt === 'number') setLastMonthDebt(remoteData.lastMonthDebt);
           if (remoteData.themeKey) setThemeKey(remoteData.themeKey);
@@ -1031,6 +1154,8 @@
           localStorage.setItem('dc_v9_supabase_anon_key', JSON.stringify(supabaseAnonKey));
           localStorage.setItem('dc_v9_fb_config_str', JSON.stringify(firebaseConfigStr));
           localStorage.setItem('dc_v9_rest_cloud_url', JSON.stringify(restCloudUrl));
+          localStorage.setItem('dc_v9_accounts', JSON.stringify(accounts));
+          localStorage.setItem('dc_v9_current_account_id', JSON.stringify(currentAccountId));
 
           // Mirror to v6 keys for backward safety
           localStorage.setItem('dc_v6_cards', JSON.stringify(cards));
@@ -1058,6 +1183,8 @@
             purchases: JSON.stringify(purchases),
             subscriptions: JSON.stringify(subscriptions),
             friends: JSON.stringify(friends),
+            accounts: JSON.stringify(accounts),
+            currentAccountId,
             exchangeRate: Number(exchangeRate) || 3.78,
             lastMonthDebt: Number(lastMonthDebt) || 0,
             themeKey,
@@ -1126,7 +1253,7 @@
         }, 250);
 
         return () => clearTimeout(timer);
-      }, [profile, themeKey, customColors, exchangeRate, cards, purchases, subscriptions, friends, lastMonthDebt, workspaceId, supabaseUrl, supabaseAnonKey, cloudProvider, firebaseConfigStr, restCloudUrl]);
+      }, [profile, themeKey, customColors, exchangeRate, cards, purchases, subscriptions, friends, accounts, currentAccountId, lastMonthDebt, workspaceId, supabaseUrl, supabaseAnonKey, cloudProvider, firebaseConfigStr, restCloudUrl]);
 
       // Currency Helpers
       const tc = Number(exchangeRate) > 0 ? Number(exchangeRate) : 3.78;
@@ -1479,6 +1606,10 @@
       };
 
       const handleDeleteCard = (id) => {
+        if (!permissions.canDeleteCard) {
+          triggerToast('🔒 Solo el Administrador Total puede eliminar tarjetas');
+          return;
+        }
         setCards(prev => prev.filter(c => c.id !== id));
         setPurchases(prev => prev.filter(p => p.cardId !== id));
         setSubscriptions(prev => prev.filter(s => s.cardId !== id));
@@ -1487,6 +1618,14 @@
       };
 
       const handleSavePurchase = (pData) => {
+        if (pData.id && !permissions.canEditPurchase) {
+          triggerToast('🔒 No tienes permisos para editar compras');
+          return;
+        }
+        if (!pData.id && !permissions.canCreatePurchase) {
+          triggerToast('🔒 No tienes permisos para registrar compras');
+          return;
+        }
         registerFriendNames(pData.debtors);
         if (pData.id) {
           setPurchases(prev => prev.map(p => p.id === pData.id ? pData : p));
@@ -1499,15 +1638,27 @@
       };
 
       const handleInlineUpdatePurchase = (id, patch) => {
+        if (!permissions.canEditPurchase) {
+          triggerToast('🔒 No tienes permisos para modificar compras');
+          return;
+        }
         setPurchases(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
       };
 
       const handleDeletePurchase = (id) => {
+        if (!permissions.canDeletePurchase) {
+          triggerToast('🔒 Solo el Administrador Total puede eliminar registros');
+          return;
+        }
         setPurchases(prev => prev.filter(p => p.id !== id));
         triggerToast('Consumo eliminado');
       };
 
       const handleStepInstallment = (id, delta) => {
+        if (!permissions.canEditPurchase) {
+          triggerToast('🔒 No tienes permisos para cambiar cuotas');
+          return;
+        }
         setPurchases(prev => prev.map(p => {
           if (p.id !== id) return p;
           const next = Math.max(1, Math.min(p.totalInstallments + 1, p.currentInstallment + delta));
@@ -1516,6 +1667,10 @@
       };
 
       const handleSaveSubscription = (sData) => {
+        if (!permissions.canCreatePurchase) {
+          triggerToast('🔒 No tienes permisos para gestionar suscripciones');
+          return;
+        }
         registerFriendNames(sData.debtors);
         if (sData.id) {
           setSubscriptions(prev => prev.map(s => s.id === sData.id ? sData : s));
@@ -1528,6 +1683,10 @@
       };
 
       const handleDeleteSubscription = (id) => {
+        if (!permissions.canDeletePurchase) {
+          triggerToast('🔒 Solo el Administrador Total puede eliminar suscripciones');
+          return;
+        }
         setSubscriptions(prev => prev.filter(s => s.id !== id));
         triggerToast('Suscripción eliminada');
       };
@@ -1728,29 +1887,28 @@
                   </div>
                 </div>
 
-                {/* Editable User Profile Pill (Notion Style) */}
-                <div className="mt-3 p-2.5 rounded-xl theme-elevated border flex items-center justify-between gap-2">
+                {/* Active Account & Role Pill */}
+                <div className="mt-3 p-2 rounded-xl theme-elevated border flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <div className="w-7 h-7 rounded-lg theme-accent-bg flex items-center justify-center font-black text-xs shrink-0">
-                      {(profile.userName || 'A').charAt(0).toUpperCase()}
-                    </div>
+                    <span className="w-8 h-8 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center text-base shrink-0">
+                      {currentAccount.avatar || '👤'}
+                    </span>
                     <div className="min-w-0 flex-1">
-                      <span className="text-[10px] uppercase tracking-wider theme-text-muted block leading-none">Usuario Activo (Editable)</span>
-                      <input
-                        type="text"
-                        value={profile.userName}
-                        onChange={e => setProfile({ ...profile, userName: e.target.value })}
-                        placeholder="Escribe tu nombre..."
-                        className="notion-inline-input text-xs font-bold w-full px-1 py-0.5 mt-0.5"
-                      />
+                      <div className="flex items-center gap-1">
+                        <span className="font-extrabold text-xs text-white truncate">{currentAccount.name}</span>
+                        <span className={`text-[9px] font-black uppercase px-1.5 py-0.2 rounded ${permissions.roleMeta.bgColor} ${permissions.roleMeta.textColor} border ${permissions.roleMeta.borderColor}`}>
+                          {permissions.roleMeta.badge}
+                        </span>
+                      </div>
+                      <span className="text-[10px] theme-text-muted truncate block">{currentAccount.email}</span>
                     </div>
                   </div>
                   <button
-                    onClick={() => setShowTemplateModal(true)}
-                    className="text-[10px] font-bold px-2 py-1 rounded-lg bg-black/30 hover:bg-black/50 text-emerald-400 shrink-0"
-                    title="Alternar entre Plantilla Limpia para amigos o Datos de Arnold"
+                    onClick={() => setShowAccountsManager(true)}
+                    className="text-[10px] font-bold px-2 py-1 rounded-lg bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 hover:text-white transition-all shrink-0"
+                    title="Administrar cuentas y roles de acceso"
                   >
-                    Plantilla
+                    Roles
                   </button>
                 </div>
               </div>
@@ -1811,6 +1969,16 @@
                 <span>⚡ Base de Datos Cloud (Supabase)</span>
                 <span className="text-[10px] bg-black/30 px-2 py-0.5 rounded-full">
                   {cloudStatus === 'connected' ? '🟢 Tiempo Real' : 'Configurar 1 vez'}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setShowAccountsManager(true)}
+                className="w-full py-2 px-3 rounded-xl text-xs font-bold theme-elevated border hover:border-amber-500/40 flex items-center justify-between"
+              >
+                <span>👥 Gestor de Cuentas & Roles</span>
+                <span className="text-[10px] bg-black/25 px-2 py-0.5 rounded-full font-mono text-amber-300">
+                  {accounts.length} Cuentas
                 </span>
               </button>
 
@@ -1903,6 +2071,19 @@
                     </span>
                   </button>
 
+                  {/* Active Account Pill Button */}
+                  <button
+                    onClick={() => setShowAccountsManager(true)}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border border-white/10 bg-black/40 hover:bg-black/60 transition-all text-white"
+                    title="Cambiar usuario o gestionar roles de acceso"
+                  >
+                    <span>{currentAccount.avatar || '👤'}</span>
+                    <span className="max-w-[120px] truncate">{currentAccount.name}</span>
+                    <span className={`text-[9px] font-black uppercase px-1.5 py-0.2 rounded ${permissions.roleMeta.bgColor} ${permissions.roleMeta.textColor} border ${permissions.roleMeta.borderColor}`}>
+                      {permissions.roleMeta.badge}
+                    </span>
+                  </button>
+
                   <div className="md:hidden flex items-center gap-1 text-xs">
                     <span className="theme-text-muted">Hola,</span>
                     <input
@@ -1930,38 +2111,58 @@
                 </div>
 
                 <button
-                  onClick={() => setEditingPurchase({
-                    description: '',
-                    totalAmount: '',
-                    currency: 'PEN',
-                    cardId: cards[0]?.id || 'cmr',
-                    hasInterest: false,
-                    currentInstallment: 1,
-                    totalInstallments: 1,
-                    isPaidThisMonth: false,
-                    splitMode: 'own',
-                    equalPartsCount: 2,
-                    debtors: []
-                  })}
-                  className="theme-accent-bg px-3 py-2 rounded-xl text-xs font-bold shadow-lg"
+                  onClick={() => {
+                    if (!permissions.canCreatePurchase) {
+                      triggerToast('🔒 Solo Administradores o Gestores pueden registrar compras');
+                      return;
+                    }
+                    setEditingPurchase({
+                      description: '',
+                      totalAmount: '',
+                      currency: 'PEN',
+                      cardId: cards[0]?.id || 'cmr',
+                      hasInterest: false,
+                      currentInstallment: 1,
+                      totalInstallments: 1,
+                      isPaidThisMonth: false,
+                      splitMode: 'own',
+                      equalPartsCount: 2,
+                      debtors: []
+                    });
+                  }}
+                  className={`px-3 py-2 rounded-xl text-xs font-bold shadow-lg transition-all ${
+                    permissions.canCreatePurchase
+                      ? 'theme-accent-bg'
+                      : 'bg-slate-700/50 text-slate-400 cursor-not-allowed opacity-60'
+                  }`}
+                  title={permissions.canCreatePurchase ? 'Registrar nueva compra' : 'Solo lectura: Requiere rol Administrador o Gestor'}
                 >
                   + Compra
                 </button>
 
                 <button
-                  onClick={() => setEditingSubscription({
-                    name: '',
-                    monthlyAmount: '',
-                    currency: 'PEN',
-                    cardId: cards[0]?.id || 'bcp',
-                    billingCycle: 'Mensual',
-                    active: true,
-                    isPaidThisMonth: false,
-                    splitMode: 'own',
-                    equalPartsCount: 2,
-                    debtors: []
-                  })}
-                  className="px-3 py-2 rounded-xl text-xs font-bold theme-elevated border hidden sm:inline-flex"
+                  onClick={() => {
+                    if (!permissions.canCreatePurchase) {
+                      triggerToast('🔒 Solo Administradores o Gestores pueden registrar suscripciones');
+                      return;
+                    }
+                    setEditingSubscription({
+                      name: '',
+                      monthlyAmount: '',
+                      currency: 'PEN',
+                      cardId: cards[0]?.id || 'bcp',
+                      billingCycle: 'Mensual',
+                      active: true,
+                      isPaidThisMonth: false,
+                      splitMode: 'own',
+                      equalPartsCount: 2,
+                      debtors: []
+                    });
+                  }}
+                  className={`px-3 py-2 rounded-xl text-xs font-bold theme-elevated border hidden sm:inline-flex ${
+                    !permissions.canCreatePurchase ? 'opacity-60 cursor-not-allowed' : ''
+                  }`}
+                  title={permissions.canCreatePurchase ? 'Registrar suscripción recurrente' : 'Solo lectura: Requiere rol Administrador o Gestor'}
                 >
                   + Suscripción
                 </button>
@@ -2034,6 +2235,9 @@
                   purchases={purchases}
                   cards={cards}
                   friends={friends}
+                  permissions={permissions}
+                  currentAccount={currentAccount}
+                  triggerToast={triggerToast}
                   purchasesViewMode={purchasesViewMode}
                   setPurchasesViewMode={setPurchasesViewMode}
                   searchQuery={searchQuery}
@@ -2044,23 +2248,53 @@
                   setFilterFriend={setFilterFriend}
                   filterOwnership={filterOwnership}
                   setFilterOwnership={setFilterOwnership}
-                  onAddPurchase={() => setEditingPurchase({
-                    description: '',
-                    totalAmount: '',
-                    currency: 'PEN',
-                    cardId: filterCardId !== 'all' ? filterCardId : (cards[0]?.id || 'cmr'),
-                    hasInterest: false,
-                    currentInstallment: 1,
-                    totalInstallments: 1,
-                    isPaidThisMonth: false,
-                    splitMode: 'own',
-                    equalPartsCount: 2,
-                    debtors: []
-                  })}
-                  onEditPurchase={(p) => setEditingPurchase(p)}
-                  onInlineUpdatePurchase={handleInlineUpdatePurchase}
-                  onDeletePurchase={handleDeletePurchase}
-                  onStepInstallment={handleStepInstallment}
+                  onAddPurchase={() => {
+                    if (!permissions.canCreatePurchase) {
+                      triggerToast('🔒 Modo lectura: Requiere rol Administrador o Gestor');
+                      return;
+                    }
+                    setEditingPurchase({
+                      description: '',
+                      totalAmount: '',
+                      currency: 'PEN',
+                      cardId: filterCardId !== 'all' ? filterCardId : (cards[0]?.id || 'cmr'),
+                      hasInterest: false,
+                      currentInstallment: 1,
+                      totalInstallments: 1,
+                      isPaidThisMonth: false,
+                      splitMode: 'own',
+                      equalPartsCount: 2,
+                      debtors: []
+                    });
+                  }}
+                  onEditPurchase={(p) => {
+                    if (!permissions.canEditPurchase) {
+                      triggerToast('🔒 No tienes permisos para editar compras');
+                      return;
+                    }
+                    setEditingPurchase(p);
+                  }}
+                  onInlineUpdatePurchase={(id, updates) => {
+                    if (!permissions.canEditPurchase) {
+                      triggerToast('🔒 No tienes permisos para modificar compras');
+                      return;
+                    }
+                    handleInlineUpdatePurchase(id, updates);
+                  }}
+                  onDeletePurchase={(id) => {
+                    if (!permissions.canDeletePurchase) {
+                      triggerToast('🔒 Solo el Administrador Total puede eliminar registros');
+                      return;
+                    }
+                    handleDeletePurchase(id);
+                  }}
+                  onStepInstallment={(id, delta) => {
+                    if (!permissions.canEditPurchase) {
+                      triggerToast('🔒 No tienes permisos para cambiar cuotas');
+                      return;
+                    }
+                    handleStepInstallment(id, delta);
+                  }}
                   onInspectCard={(id) => setSelectedCardId(id)}
                   formatSoles={formatSoles}
                   formatMoney={formatMoney}
@@ -2157,6 +2391,20 @@
               onDownloadVercelReadyHTML={handleDownloadVercelReadyHTML}
               triggerToast={triggerToast}
               onClose={() => setShowCloudDatabaseModal(false)}
+            />
+          )}
+
+          {showAccountsManager && (
+            <AccountsManagerModal
+              accounts={accounts}
+              setAccounts={setAccounts}
+              currentAccountId={currentAccountId}
+              setCurrentAccountId={setCurrentAccountId}
+              currentAccount={currentAccount}
+              permissions={permissions}
+              friends={friends}
+              onClose={() => setShowAccountsManager(false)}
+              triggerToast={triggerToast}
             />
           )}
 
@@ -3192,6 +3440,8 @@ end $$;`;
       purchases,
       cards,
       friends,
+      permissions,
+      currentAccount,
       purchasesViewMode,
       setPurchasesViewMode,
       searchQuery,
@@ -3214,6 +3464,11 @@ end $$;`;
     }) {
       const filtered = useMemo(() => {
         return purchases.filter(p => {
+          if (permissions && permissions.isDebtorOnly && permissions.debtorFriendName) {
+            const myName = permissions.debtorFriendName.trim().toLowerCase();
+            const hasMyDebt = (p.debtors || []).some(d => (d.name || '').trim().toLowerCase() === myName);
+            if (!hasMyDebt) return false;
+          }
           if (filterCardId !== 'all' && p.cardId !== filterCardId) return false;
           const hasDebtors = p.debtors && p.debtors.length > 0;
           if (filterOwnership === 'propia' && hasDebtors) return false;
@@ -3229,10 +3484,49 @@ end $$;`;
           }
           return true;
         });
-      }, [purchases, filterCardId, filterFriend, filterOwnership, searchQuery]);
+      }, [purchases, filterCardId, filterFriend, filterOwnership, searchQuery, permissions]);
 
       return (
         <div className="max-w-6xl mx-auto space-y-5">
+          {/* Active Role Status Banners */}
+          {permissions && permissions.isDebtorOnly && (
+            <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🤝</span>
+                <div>
+                  <div className="font-extrabold text-emerald-300">
+                    Modo Deudor Activo: Mostrando solo compras de {permissions.debtorFriendName || currentAccount?.name || 'tu cuenta'}
+                  </div>
+                  <p className="text-slate-400 text-[11px] mt-0.5">
+                    Estás viendo únicamente las compras y cuotas que te corresponden a ti. La edición general está restringida.
+                  </p>
+                </div>
+              </div>
+              <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px] border border-emerald-500/30 shrink-0">
+                Vista Personal Filtrada
+              </span>
+            </div>
+          )}
+
+          {permissions && permissions.isReadOnly && (
+            <div className="p-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">👁️</span>
+                <div>
+                  <div className="font-extrabold text-purple-300">
+                    Modo Auditor (Solo Lectura)
+                  </div>
+                  <p className="text-slate-400 text-[11px] mt-0.5">
+                    Tienes acceso de visualización a métricas, tarjetas y compras. La creación, edición y eliminación están deshabilitadas.
+                  </p>
+                </div>
+              </div>
+              <span className="px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300 font-bold text-[10px] border border-purple-500/30 shrink-0">
+                Auditoría Activa
+              </span>
+            </div>
+          )}
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-2xl font-black">Compras, Cuotas y Base de Datos Notion</h2>
@@ -3256,9 +3550,11 @@ end $$;`;
                 </button>
               </div>
 
-              <button onClick={onAddPurchase} className="theme-accent-bg px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg">
-                + Registrar Compra
-              </button>
+              {permissions?.canCreatePurchase && (
+                <button onClick={onAddPurchase} className="theme-accent-bg px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg">
+                  + Registrar Compra
+                </button>
+              )}
             </div>
           </div>
 
@@ -3328,15 +3624,17 @@ end $$;`;
                           <input
                             type="text"
                             value={p.description}
+                            disabled={!permissions?.canEditPurchase}
                             onChange={e => onInlineUpdatePurchase(p.id, { description: e.target.value })}
-                            className="notion-inline-input font-bold text-xs w-full px-2 py-1"
+                            className={`notion-inline-input font-bold text-xs w-full px-2 py-1 ${!permissions?.canEditPurchase ? 'cursor-default opacity-85' : ''}`}
                           />
                         </td>
                         <td className="py-2.5 px-3">
                           <select
                             value={p.cardId}
+                            disabled={!permissions?.canEditPurchase}
                             onChange={e => onInlineUpdatePurchase(p.id, { cardId: e.target.value })}
-                            className="notion-inline-input font-bold text-xs px-2 py-1 rounded bg-black/30"
+                            className={`notion-inline-input font-bold text-xs px-2 py-1 rounded bg-black/30 ${!permissions?.canEditPurchase ? 'cursor-default opacity-85' : ''}`}
                           >
                             {cards.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                           </select>
@@ -3348,18 +3646,23 @@ end $$;`;
                               type="number"
                               step="0.01"
                               value={p.totalAmount}
+                              disabled={!permissions?.canEditPurchase}
                               onChange={e => onInlineUpdatePurchase(p.id, { totalAmount: parseFloat(e.target.value) || 0 })}
-                              className="notion-inline-input font-bold w-24 px-1.5 py-1"
+                              className={`notion-inline-input font-bold w-24 px-1.5 py-1 ${!permissions?.canEditPurchase ? 'cursor-default opacity-85' : ''}`}
                             />
                           </div>
                         </td>
                         <td className="py-2.5 px-3">
                           <div className="flex items-center gap-1.5">
-                            <button onClick={() => onStepInstallment(p.id, -1)} className="px-1.5 py-0.5 rounded bg-black/40 font-bold">-</button>
+                            {permissions?.canEditPurchase && (
+                              <button onClick={() => onStepInstallment(p.id, -1)} className="px-1.5 py-0.5 rounded bg-black/40 font-bold">-</button>
+                            )}
                             <span className="font-mono-num font-bold text-emerald-400">
                               {p.currentInstallment}/{installments}
                             </span>
-                            <button onClick={() => onStepInstallment(p.id, 1)} className="px-1.5 py-0.5 rounded bg-black/40 font-bold text-emerald-400">+</button>
+                            {permissions?.canEditPurchase && (
+                              <button onClick={() => onStepInstallment(p.id, 1)} className="px-1.5 py-0.5 rounded bg-black/40 font-bold text-emerald-400">+</button>
+                            )}
                           </div>
                         </td>
                         <td className="py-2.5 px-3 font-mono-num font-bold text-indigo-400">
@@ -3377,8 +3680,15 @@ end $$;`;
                           )}
                         </td>
                         <td className="py-2.5 px-4 text-right space-x-1">
-                          <button onClick={() => onEditPurchase(p)} className="p-1.5 rounded-lg theme-elevated" title="Abrir editor completo">✏️</button>
-                          <button onClick={() => onDeletePurchase(p.id)} className="p-1.5 rounded-lg theme-elevated text-rose-400" title="Eliminar">🗑️</button>
+                          {permissions?.canEditPurchase && (
+                            <button onClick={() => onEditPurchase(p)} className="p-1.5 rounded-lg theme-elevated" title="Abrir editor completo">✏️</button>
+                          )}
+                          {permissions?.canDeletePurchase && (
+                            <button onClick={() => onDeletePurchase(p.id)} className="p-1.5 rounded-lg theme-elevated text-rose-400" title="Eliminar">🗑️</button>
+                          )}
+                          {!permissions?.canEditPurchase && !permissions?.canDeletePurchase && (
+                            <span className="text-[10px] theme-text-muted italic">Lectura</span>
+                          )}
                         </td>
                       </tr>
                     );
@@ -3422,16 +3732,21 @@ end $$;`;
                         </div>
 
                         <div className="flex items-center gap-1">
-                          <button onClick={() => onEditPurchase(p)} className="p-2 rounded-xl theme-elevated hover:text-indigo-400" title="Editar">✏️</button>
-                          <button onClick={() => onDeletePurchase(p.id)} className="p-2 rounded-xl theme-elevated text-rose-400 hover:bg-rose-500/20" title="Borrar">🗑️</button>
+                          {permissions?.canEditPurchase && (
+                            <button onClick={() => onEditPurchase(p)} className="p-2 rounded-xl theme-elevated hover:text-indigo-400" title="Editar">✏️</button>
+                          )}
+                          {permissions?.canDeletePurchase && (
+                            <button onClick={() => onDeletePurchase(p.id)} className="p-2 rounded-xl theme-elevated text-rose-400 hover:bg-rose-500/20" title="Borrar">🗑️</button>
+                          )}
                         </div>
                       </div>
 
                       <input
                         type="text"
                         value={p.description}
+                        disabled={!permissions?.canEditPurchase}
                         onChange={e => onInlineUpdatePurchase(p.id, { description: e.target.value })}
-                        className="notion-inline-input font-bold text-base w-full px-1.5 py-0.5 -ml-1.5"
+                        className={`notion-inline-input font-bold text-base w-full px-1.5 py-0.5 -ml-1.5 ${!permissions?.canEditPurchase ? 'cursor-default opacity-85' : ''}`}
                         title="Haz clic para editar el nombre de la compra directamente"
                       />
 
@@ -3456,8 +3771,12 @@ end $$;`;
                         {isCompleted ? '¡Liquidada!' : `Cuota ${p.currentInstallment} de ${installments}`}
                       </span>
                       <div className="flex items-center gap-1.5">
-                        <button onClick={() => onStepInstallment(p.id, -1)} className="px-2.5 py-1 rounded-lg theme-elevated border font-bold">-1</button>
-                        <button onClick={() => onStepInstallment(p.id, 1)} className="px-2.5 py-1 rounded-lg theme-elevated border font-bold text-emerald-400">+1 Cuota</button>
+                        {permissions?.canEditPurchase && (
+                          <button onClick={() => onStepInstallment(p.id, -1)} className="px-2.5 py-1 rounded-lg theme-elevated border font-bold">-1</button>
+                        )}
+                        {permissions?.canEditPurchase && (
+                          <button onClick={() => onStepInstallment(p.id, 1)} className="px-2.5 py-1 rounded-lg theme-elevated border font-bold text-emerald-400">+1 Cuota</button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -3817,6 +4136,638 @@ end $$;`;
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // 11.5 ACCOUNTS & ROLES RBAC MANAGER MODAL
+    // ==========================================
+    function AccountsManagerModal({
+      accounts,
+      setAccounts,
+      currentAccountId,
+      setCurrentAccountId,
+      currentAccount,
+      permissions,
+      friends,
+      onClose,
+      triggerToast
+    }) {
+      const [activeTab, setActiveTab] = useState('accounts'); // 'accounts' | 'matrix'
+      const [editingAccount, setEditingAccount] = useState(null); // null or account object
+      const [pinChallenge, setPinChallenge] = useState(null); // { targetAccount, inputPin, error }
+
+      const isSuperAdmin = permissions?.role === 'admin';
+
+      const AVATAR_OPTIONS = ['👑', '✏️', '👁️', '🤝', '💼', '🚀', '💰', '🛡️', '🧑‍💻', '🎯', '⚡', '📊'];
+
+      const handleSwitchAccount = (acc) => {
+        if (acc.id === currentAccountId) {
+          triggerToast('Esta cuenta ya es la sesión activa');
+          return;
+        }
+        if (acc.pin && acc.pin.trim().length > 0) {
+          setPinChallenge({ targetAccount: acc, inputPin: '', error: '' });
+          return;
+        }
+        setCurrentAccountId(acc.id);
+        const meta = ROLE_METADATA[acc.role] || ROLE_METADATA.admin;
+        triggerToast(`Sesión cambiada a: ${acc.name} (${meta.badge})`);
+      };
+
+      const handleVerifyPinAndSwitch = (e) => {
+        e.preventDefault();
+        if (!pinChallenge) return;
+        if (pinChallenge.inputPin.trim() === pinChallenge.targetAccount.pin.trim()) {
+          setCurrentAccountId(pinChallenge.targetAccount.id);
+          const meta = ROLE_METADATA[pinChallenge.targetAccount.role] || ROLE_METADATA.admin;
+          triggerToast(`✅ PIN correcto. Sesión: ${pinChallenge.targetAccount.name} (${meta.badge})`);
+          setPinChallenge(null);
+        } else {
+          setPinChallenge(prev => ({ ...prev, error: 'PIN incorrecto. Intenta nuevamente.' }));
+        }
+      };
+
+      const handleStartCreate = () => {
+        setEditingAccount({
+          id: '',
+          name: '',
+          email: '',
+          role: 'editor',
+          avatar: '👤',
+          debtorFriendName: friends[0] || '',
+          pin: ''
+        });
+      };
+
+      const handleStartEdit = (acc) => {
+        setEditingAccount({ ...acc });
+      };
+
+      const handleSaveAccount = (e) => {
+        e.preventDefault();
+        if (!editingAccount.name.trim()) {
+          triggerToast('⚠️ Ingresa un nombre válido');
+          return;
+        }
+        if (!editingAccount.email.trim()) {
+          triggerToast('⚠️ Ingresa un correo electrónico');
+          return;
+        }
+
+        if (editingAccount.id) {
+          // Actualizar cuenta existente
+          setAccounts(prev => prev.map(a => a.id === editingAccount.id ? { ...editingAccount } : a));
+          triggerToast(`Cuenta actualizada: ${editingAccount.name}`);
+        } else {
+          // Crear cuenta nueva
+          const newId = 'acc_' + Date.now().toString(36);
+          const newAcc = { ...editingAccount, id: newId };
+          setAccounts(prev => [...prev, newAcc]);
+          triggerToast(`Nueva cuenta creada: ${newAcc.name}`);
+        }
+        setEditingAccount(null);
+      };
+
+      const handleDeleteAccount = (acc) => {
+        if (acc.id === currentAccountId) {
+          triggerToast('⚠️ No puedes eliminar la cuenta de tu sesión activa actual');
+          return;
+        }
+        if (acc.id === 'acc_arnold') {
+          triggerToast('⚠️ La cuenta principal de Arnold es permanente y no se puede eliminar');
+          return;
+        }
+        if (window.confirm(`¿Estás seguro de eliminar la cuenta de "${acc.name}"?`)) {
+          setAccounts(prev => prev.filter(a => a.id !== acc.id));
+          triggerToast(`Cuenta eliminada: ${acc.name}`);
+        }
+      };
+
+      return (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-5">
+          <div className="w-full max-w-3xl theme-surface border p-4 sm:p-6 space-y-5 shadow-2xl max-h-[92vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center pb-3 border-b theme-border">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center text-xl shadow-lg shrink-0">
+                  👥
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-black">Gestor de Cuentas & Roles</h3>
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      RBAC v9.0
+                    </span>
+                  </div>
+                  <p className="text-xs theme-text-muted">
+                    Control de accesos con seguridad por PIN, perfiles multi-usuario y sincronización en la nube Supabase.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={onClose}
+                className="px-2.5 py-1.5 rounded-lg theme-elevated text-xs font-bold hover:bg-white/10"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Current Active User Banner */}
+            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-white/5 to-white/10 border theme-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="w-11 h-11 rounded-2xl bg-black/40 border theme-border flex items-center justify-center text-2xl shadow-inner shrink-0">
+                  {currentAccount?.avatar || '👤'}
+                </span>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-extrabold text-sm text-white">{currentAccount?.name}</span>
+                    <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${permissions?.roleMeta?.bgColor} ${permissions?.roleMeta?.textColor} border ${permissions?.roleMeta?.borderColor}`}>
+                      {permissions?.roleMeta?.badge}
+                    </span>
+                    {currentAccount?.pin && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/40 text-amber-300 border border-amber-500/30">
+                        🔒 PIN
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs theme-text-muted">{currentAccount?.email}</p>
+                </div>
+              </div>
+              <div className="text-left sm:text-right">
+                <span className="text-[10px] uppercase font-bold text-emerald-400 block">🟢 Sesión Activa</span>
+                <span className="text-[11px] theme-text-muted">
+                  {currentAccount?.role === 'debtor' && currentAccount?.debtorFriendName
+                    ? `Deudas asignadas a: ${currentAccount.debtorFriendName}`
+                    : permissions?.roleMeta?.label}
+                </span>
+              </div>
+            </div>
+
+            {/* Navigation Tabs */}
+            <div className="flex border-b theme-border text-xs font-bold">
+              <button
+                onClick={() => { setActiveTab('accounts'); setEditingAccount(null); }}
+                className={`px-4 py-2.5 border-b-2 transition-all flex items-center gap-2 ${
+                  activeTab === 'accounts'
+                    ? 'border-indigo-500 text-indigo-400'
+                    : 'border-transparent theme-text-muted hover:text-white'
+                }`}
+              >
+                <span>👥 Usuarios & Cuentas</span>
+                <span className="text-[10px] bg-black/40 px-1.5 py-0.2 rounded-full font-mono">{accounts.length}</span>
+              </button>
+              <button
+                onClick={() => { setActiveTab('matrix'); setEditingAccount(null); }}
+                className={`px-4 py-2.5 border-b-2 transition-all flex items-center gap-2 ${
+                  activeTab === 'matrix'
+                    ? 'border-indigo-500 text-indigo-400'
+                    : 'border-transparent theme-text-muted hover:text-white'
+                }`}
+              >
+                <span>🛡️ Matriz de Permisos</span>
+              </button>
+            </div>
+
+            {/* TAB 1: ACCOUNTS LIST & CRUD */}
+            {activeTab === 'accounts' && (
+              <div className="space-y-4">
+                {editingAccount ? (
+                  /* Account Form (Create or Edit) */
+                  <form onSubmit={handleSaveAccount} className="p-4 rounded-2xl theme-surface border space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b theme-border">
+                      <h4 className="font-extrabold text-sm text-white">
+                        {editingAccount.id ? '✏️ Editar Cuenta' : '➕ Crear Nueva Cuenta'}
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={() => setEditingAccount(null)}
+                        className="text-xs theme-text-muted hover:text-white"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <label className="block font-bold mb-1">Nombre Completo *</label>
+                        <input
+                          type="text"
+                          required
+                          value={editingAccount.name}
+                          onChange={e => setEditingAccount({ ...editingAccount, name: e.target.value })}
+                          placeholder="Ej: Arnold Moreno, Carlos Gestor..."
+                          className="w-full p-2.5 rounded-xl bg-black/40 border theme-border font-bold text-white"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block font-bold mb-1">Correo Electrónico *</label>
+                        <input
+                          type="email"
+                          required
+                          value={editingAccount.email}
+                          onChange={e => setEditingAccount({ ...editingAccount, email: e.target.value })}
+                          placeholder="usuario@deudacero.pe"
+                          className="w-full p-2.5 rounded-xl bg-black/40 border theme-border text-white"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Avatar Emoji Selector */}
+                    <div className="text-xs">
+                      <label className="block font-bold mb-1.5">Avatar / Ícono</label>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {AVATAR_OPTIONS.map(emoji => (
+                          <button
+                            key={emoji}
+                            type="button"
+                            onClick={() => setEditingAccount({ ...editingAccount, avatar: emoji })}
+                            className={`w-9 h-9 rounded-xl border flex items-center justify-center text-lg transition-transform ${
+                              editingAccount.avatar === emoji
+                                ? 'border-amber-400 bg-amber-500/20 scale-110 shadow'
+                                : 'border-white/10 bg-black/30 hover:bg-white/10'
+                            }`}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Role Selector */}
+                    <div className="text-xs space-y-2">
+                      <label className="block font-bold">Rol de Acceso y Permisos *</label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {Object.values(ROLE_METADATA).map(role => {
+                          const isSelected = editingAccount.role === role.id;
+                          return (
+                            <div
+                              key={role.id}
+                              onClick={() => setEditingAccount({ ...editingAccount, role: role.id })}
+                              className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                                isSelected
+                                  ? `${role.bgColor} ${role.borderColor} ring-1 ring-amber-400/50 shadow-md`
+                                  : 'theme-elevated border hover:border-white/20'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between mb-1">
+                                <span className={`font-black text-xs ${role.textColor}`}>{role.badge}</span>
+                                {isSelected && <span className="text-emerald-400 font-bold">✓</span>}
+                              </div>
+                              <p className="text-[11px] theme-text-muted leading-tight">{role.description}</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Debtor Assigned Friend (Only if role === 'debtor') */}
+                    {editingAccount.role === 'debtor' && (
+                      <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs space-y-2">
+                        <label className="block font-extrabold text-emerald-300">
+                          🤝 Amigo Asignado en el Sistema
+                        </label>
+                        <p className="text-[11px] theme-text-muted">
+                          Esta cuenta solo verá las compras asignadas a este deudor específico:
+                        </p>
+                        <div className="flex gap-2">
+                          <select
+                            value={editingAccount.debtorFriendName}
+                            onChange={e => setEditingAccount({ ...editingAccount, debtorFriendName: e.target.value })}
+                            className="flex-1 p-2.5 rounded-xl bg-black/50 border theme-border font-bold text-white"
+                          >
+                            <option value="">-- Seleccionar Amigo Registrado --</option>
+                            {friends.map(f => (
+                              <option key={f} value={f}>👤 {f}</option>
+                            ))}
+                          </select>
+                          <input
+                            type="text"
+                            placeholder="O escribe su nombre..."
+                            value={editingAccount.debtorFriendName}
+                            onChange={e => setEditingAccount({ ...editingAccount, debtorFriendName: e.target.value })}
+                            className="flex-1 p-2.5 rounded-xl bg-black/50 border theme-border text-white"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* PIN Security */}
+                    <div className="text-xs">
+                      <label className="block font-bold mb-1">
+                        🔒 PIN de Acceso (Opcional, 4 a 6 dígitos)
+                      </label>
+                      <input
+                        type="password"
+                        maxLength={6}
+                        value={editingAccount.pin || ''}
+                        onChange={e => setEditingAccount({ ...editingAccount, pin: e.target.value.replace(/[^0-9]/g, '') })}
+                        placeholder="Sin PIN (acceso libre) o ej: 2026"
+                        className="w-full sm:w-64 p-2.5 rounded-xl bg-black/40 border theme-border font-mono tracking-widest text-white"
+                      />
+                      <span className="text-[10px] theme-text-muted mt-1 block">
+                        Si configuras un PIN, el sistema lo solicitará cada vez que alguien intente cambiar a este usuario.
+                      </span>
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-2 border-t theme-border">
+                      <button
+                        type="button"
+                        onClick={() => setEditingAccount(null)}
+                        className="px-4 py-2 rounded-xl theme-elevated border text-xs font-bold"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-5 py-2 rounded-xl theme-accent-bg text-xs font-bold shadow-lg"
+                      >
+                        {editingAccount.id ? '💾 Guardar Cambios' : '➕ Crear Cuenta'}
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400">
+                          Cuentas del Sistema ({accounts.length})
+                        </h4>
+                        <p className="text-[11px] theme-text-muted">
+                          Haz clic en <strong>"Cambiar a esta cuenta"</strong> para alternar de usuario al instante.
+                        </p>
+                      </div>
+                      {isSuperAdmin && (
+                        <button
+                          onClick={handleStartCreate}
+                          className="px-3.5 py-2 rounded-xl theme-accent-bg text-xs font-bold shadow flex items-center gap-1.5"
+                        >
+                          <span>+</span>
+                          <span>Nueva Cuenta</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-2.5">
+                      {accounts.map(acc => {
+                        const meta = ROLE_METADATA[acc.role] || ROLE_METADATA.admin;
+                        const isCurrent = acc.id === currentAccountId;
+
+                        return (
+                          <div
+                            key={acc.id}
+                            className={`p-3.5 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                              isCurrent
+                                ? 'bg-indigo-500/10 border-indigo-500/40 shadow-md ring-1 ring-indigo-500/30'
+                                : 'theme-elevated border hover:border-white/20'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span className="w-10 h-10 rounded-xl bg-black/40 border border-white/10 flex items-center justify-center text-xl shrink-0">
+                                {acc.avatar || '👤'}
+                              </span>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-extrabold text-sm text-white truncate">{acc.name}</span>
+                                  <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${meta.bgColor} ${meta.textColor} border ${meta.borderColor}`}>
+                                    {meta.badge}
+                                  </span>
+                                  {acc.pin && (
+                                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-black/50 text-amber-300 border border-amber-500/30" title="Protegido por PIN">
+                                      🔒 PIN
+                                    </span>
+                                  )}
+                                  {acc.role === 'debtor' && acc.debtorFriendName && (
+                                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                      👤 {acc.debtorFriendName}
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="text-xs theme-text-muted truncate block">{acc.email}</span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                              {isCurrent ? (
+                                <span className="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 font-extrabold text-xs border border-emerald-500/40 flex items-center gap-1.5">
+                                  <span>✓</span>
+                                  <span>Sesión Activa</span>
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() => handleSwitchAccount(acc)}
+                                  className="px-3 py-1.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 hover:text-white border border-indigo-500/40 text-xs font-bold transition-all flex items-center gap-1"
+                                >
+                                  <span>{acc.pin ? '🔒' : '👉'}</span>
+                                  <span>Cambiar</span>
+                                </button>
+                              )}
+
+                              {isSuperAdmin && (
+                                <>
+                                  <button
+                                    onClick={() => handleStartEdit(acc)}
+                                    className="p-1.5 rounded-lg theme-elevated hover:text-indigo-400 text-xs"
+                                    title="Editar cuenta"
+                                  >
+                                    ✏️
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteAccount(acc)}
+                                    disabled={isCurrent || acc.id === 'acc_arnold'}
+                                    className={`p-1.5 rounded-lg text-xs ${
+                                      isCurrent || acc.id === 'acc_arnold'
+                                        ? 'opacity-30 cursor-not-allowed theme-elevated'
+                                        : 'theme-elevated text-rose-400 hover:bg-rose-500/20'
+                                    }`}
+                                    title={
+                                      isCurrent
+                                        ? 'No puedes borrar la sesión activa'
+                                        : acc.id === 'acc_arnold'
+                                        ? 'Cuenta de Arnold protegida'
+                                        : 'Eliminar cuenta'
+                                    }
+                                  >
+                                    🗑️
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* TAB 2: RBAC PERMISSIONS MATRIX */}
+            {activeTab === 'matrix' && (
+              <div className="space-y-4">
+                <div className="theme-surface border overflow-x-auto shadow-xl">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b theme-border theme-text-muted uppercase text-[10px]">
+                        <th className="py-3 px-4 font-bold">Capacidad / Acción</th>
+                        <th className="py-3 px-3 text-center text-amber-400 font-black">👑 Admin</th>
+                        <th className="py-3 px-3 text-center text-blue-400 font-black">✏️ Gestor</th>
+                        <th className="py-3 px-3 text-center text-purple-400 font-black">👁️ Auditor</th>
+                        <th className="py-3 px-3 text-center text-emerald-400 font-black">🤝 Deudor</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y theme-border">
+                      <tr className="hover:bg-white/5">
+                        <td className="py-2.5 px-4 font-semibold text-white">
+                          🛒 Registrar nuevas compras y suscripciones
+                        </td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
+                      </tr>
+                      <tr className="hover:bg-white/5">
+                        <td className="py-2.5 px-4 font-semibold text-white">
+                          ✏️ Modificar cuotas, importes y descripciones
+                        </td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
+                      </tr>
+                      <tr className="hover:bg-white/5">
+                        <td className="py-2.5 px-4 font-semibold text-white">
+                          🗑️ Eliminar compras y deudas del sistema
+                        </td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
+                      </tr>
+                      <tr className="hover:bg-white/5">
+                        <td className="py-2.5 px-4 font-semibold text-white">
+                          💳 Crear, editar y configurar tarjetas de crédito
+                        </td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
+                      </tr>
+                      <tr className="hover:bg-white/5">
+                        <td className="py-2.5 px-4 font-semibold text-white">
+                          ⚡ Configurar Supabase Cloud / BD en la Nube
+                        </td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
+                      </tr>
+                      <tr className="hover:bg-white/5">
+                        <td className="py-2.5 px-4 font-semibold text-white">
+                          👥 Crear, editar y borrar usuarios y roles
+                        </td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
+                      </tr>
+                      <tr className="hover:bg-white/5">
+                        <td className="py-2.5 px-4 font-semibold text-white">
+                          📊 Ver Dashboard financiero global
+                        </td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Completo</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Completo</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-purple-300">👁️ Consulta</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-300">👤 Solo sus deudas</td>
+                      </tr>
+                      <tr className="hover:bg-white/5">
+                        <td className="py-2.5 px-4 font-semibold text-white">
+                          🤝 Vista personal filtrada (Solo ve sus deudas asignadas)
+                        </td>
+                        <td className="py-2.5 px-3 text-center font-bold text-slate-500">-</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-slate-500">-</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-slate-500">-</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">⭐ Exclusivo</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-xs space-y-1">
+                  <div className="font-extrabold text-indigo-300">💡 Nota de Seguridad y Auditoría</div>
+                  <p className="theme-text-muted leading-relaxed">
+                    Las cuentas y sus roles se guardan tanto de forma local como sincronizadas en tiempo real con <strong>Supabase</strong>. Si asignas un PIN a tu cuenta de Administrador, nadie podrá modificar los roles ni ver registros protegidos sin ingresar el código.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* PIN Challenge Overlay Modal */}
+            {pinChallenge && (
+              <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-60 flex items-center justify-center p-4">
+                <form
+                  onSubmit={handleVerifyPinAndSwitch}
+                  className="w-full max-w-sm theme-surface border p-6 rounded-2xl space-y-4 shadow-2xl text-center"
+                >
+                  <div className="w-14 h-14 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center text-2xl mx-auto shadow-inner">
+                    🔒
+                  </div>
+                  <div>
+                    <h4 className="font-black text-base text-white">Ingresa el PIN de Seguridad</h4>
+                    <p className="text-xs theme-text-muted mt-1">
+                      La cuenta <strong>{pinChallenge.targetAccount.name}</strong> está protegida con PIN.
+                    </p>
+                  </div>
+
+                  <div>
+                    <input
+                      type="password"
+                      maxLength={6}
+                      autoFocus
+                      required
+                      value={pinChallenge.inputPin}
+                      onChange={e => setPinChallenge({ ...pinChallenge, inputPin: e.target.value.replace(/[^0-9]/g, ''), error: '' })}
+                      placeholder="••••"
+                      className="w-40 mx-auto text-center font-mono text-2xl tracking-widest p-2.5 rounded-xl bg-black/60 border border-white/20 text-amber-300 font-bold"
+                    />
+                    {pinChallenge.error && (
+                      <span className="text-xs text-rose-400 font-bold block mt-2">
+                        {pinChallenge.error}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setPinChallenge(null)}
+                      className="flex-1 py-2.5 rounded-xl theme-elevated border text-xs font-bold"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 py-2.5 rounded-xl theme-accent-bg text-xs font-bold shadow"
+                    >
+                      Verificar y Entrar
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Modal Footer */}
+            <div className="flex justify-end pt-2 border-t theme-border">
+              <button
+                onClick={onClose}
+                className="px-5 py-2.5 rounded-xl theme-elevated border text-xs font-bold"
+              >
+                Cerrar
+              </button>
             </div>
           </div>
         </div>
