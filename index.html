@@ -2661,8 +2661,6 @@ end $$;`;
         </div>
       );
     }
-      );
-    }
 
     // ==========================================
     // 6. DASHBOARD VIEW WITH 4 INTERACTIVE CHART MODES
@@ -4652,13 +4650,3 @@ end $$;`;
   </script>
 </body>
 </html>
-```
-
-### ¿Cómo dejarlo conectado 100% en automático en tu Vercel (1 sola vez y para siempre)?
-
-Hablando de ingeniero a ingeniero: **Vercel Drop es un servidor de archivos estáticos (Frontend)**, por lo que no incluye una base de datos propia a menos que tu código apunte a una en la nube. En esta versión **v9.0**, dejé programado el puente en tiempo real con **Firebase Firestore (`onSnapshot`)** y un generador automático dentro de la misma aplicación:
-
-1. Abre la vista previa (o tu web), haz clic en el botón **"⚡ Base de Datos Cloud (Vercel)"** abajo a la izquierda.
-2. Pega ahí el bloque `firebaseConfig` de un proyecto gratuito tuyo de Firebase (el mismo Firebase que usarás para tu tesis) y dale al botón verde **"📥 2. Descargar index.html con Base de Datos Incrustada"**.
-3. Ese botón te descargará un archivo `index.html` que ya lleva tus credenciales de base de datos grabadas adentro del código.
-4. Arrastras ese `index.html` a **Vercel Drop** una única vez, y listo: cada vez que abras `gestordeudas-elshuashe.vercel.app` en tu iPhone o en tu MacBook Pro, cualquier cambio que hagas en uno aparecerá automáticamente en el otro en tiempo real sin volver a enviar enlaces ni archivos.
