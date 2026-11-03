@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Gestor de deudas El Shuashe v1.0.1 | Control Financiero Inteligente</title>
+  <title>Gestor de deudas El Shuashe v1.1.0 | Control Financiero Inteligente</title>
   <link rel="icon" type="image/jpeg" href="logo.jpg" />
   <link rel="apple-touch-icon" href="logo.jpg" />
   <!-- Tailwind CSS CDN -->
@@ -305,6 +305,65 @@
       }
     };
 
+    const CAPABILITY_DEFINITIONS = [
+      { key: 'canCreatePurchase', label: 'Registrar nuevas compras y cuotas', icon: '🛒', desc: 'Permite agregar nuevos consumos o pagos recurrentes' },
+      { key: 'canEditPurchase', label: 'Modificar compras y avanzar cuotas', icon: '✏️', desc: 'Permite editar nombres, montos y sumar o restar cuotas' },
+      { key: 'canDeletePurchase', label: 'Eliminar compras y deudas', icon: '🗑️', desc: 'Permite borrar registros del historial de consumos' },
+      { key: 'canCreateCard', label: 'Registrar nuevas tarjetas de crédito', icon: '💳', desc: 'Permite dar de alta plásticos en Soles o Dólares' },
+      { key: 'canEditCard', label: 'Configurar tarjetas existentes', icon: '⚙️', desc: 'Permite alterar líneas de crédito, cortes y desgravamen' },
+      { key: 'canDeleteCard', label: 'Eliminar tarjetas bancarias', icon: '❌', desc: 'Permite remover plásticos del catálogo' },
+      { key: 'canManageCloud', label: 'Configurar Base de Datos Cloud (Supabase)', icon: '⚡', desc: 'Permite cambiar credenciales de sincronización remota' },
+      { key: 'canManageAccounts', label: 'Administrar usuarios y crear cuentas', icon: '👥', desc: 'Permite crear personas, cambiar PINs y asignar roles' },
+      { key: 'canExportImport', label: 'Exportar e importar copias de seguridad JSON', icon: '⬇️', desc: 'Permite descargar respaldos de datos a la computadora' }
+    ];
+
+    const DEFAULT_ROLE_PERMISSIONS = {
+      admin: {
+        canCreatePurchase: true,
+        canEditPurchase: true,
+        canDeletePurchase: true,
+        canCreateCard: true,
+        canEditCard: true,
+        canDeleteCard: true,
+        canManageCloud: true,
+        canManageAccounts: true,
+        canExportImport: true
+      },
+      editor: {
+        canCreatePurchase: true,
+        canEditPurchase: true,
+        canDeletePurchase: false,
+        canCreateCard: true,
+        canEditCard: true,
+        canDeleteCard: false,
+        canManageCloud: false,
+        canManageAccounts: false,
+        canExportImport: true
+      },
+      viewer: {
+        canCreatePurchase: false,
+        canEditPurchase: false,
+        canDeletePurchase: false,
+        canCreateCard: false,
+        canEditCard: false,
+        canDeleteCard: false,
+        canManageCloud: false,
+        canManageAccounts: false,
+        canExportImport: true
+      },
+      debtor: {
+        canCreatePurchase: false,
+        canEditPurchase: false,
+        canDeletePurchase: false,
+        canCreateCard: false,
+        canEditCard: false,
+        canDeleteCard: false,
+        canManageCloud: false,
+        canManageAccounts: false,
+        canExportImport: false
+      }
+    };
+
     const ARNOLD_PROFILE = {
       userName: 'Arnold Moreno',
       appTitle: 'Deuda Cero',
@@ -585,7 +644,7 @@
             style={{
               boxShadow: `0 8px 24px -4px rgba(16, 185, 129, 0.45)`
             }}
-            title="Gestor de deudas El Shuashe v1.0.1 (Clic para alternar logo)"
+            title="Gestor de deudas El Shuashe v1.1.0 (Clic para alternar logo)"
           >
             <img
               src="logo.jpg"
@@ -748,7 +807,7 @@
               </div>
               <div className="flex items-center justify-center gap-2">
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider">
-                  v1.0.1
+                  v1.1.0
                 </span>
                 <span className="text-[10px] font-bold text-slate-400">Edición Oficial</span>
               </div>
@@ -949,7 +1008,7 @@
 
             {/* Footer info */}
             <div className="pt-2 border-t theme-border text-center text-[10px] theme-text-muted space-y-1">
-              <p>Gestor de deudas El Shuashe v1.0.1 • Creado por Arnold Moreno</p>
+              <p>Gestor de deudas El Shuashe v1.1.0 • Creado por Arnold Moreno</p>
               <p className="text-slate-500">
                 Sincronización en la nube Supabase Real-Time • Base de datos aislada por usuario
               </p>
@@ -1109,6 +1168,15 @@
       const [showCloudDatabaseModal, setShowCloudDatabaseModal] = useState(false);
       const [showAccountsManager, setShowAccountsManager] = useState(false);
 
+      const [rolePermissions, setRolePermissions] = useState(() => {
+        const stored = loadLocal('dc_v9_role_permissions', null);
+        return stored ? { ...DEFAULT_ROLE_PERMISSIONS, ...stored } : DEFAULT_ROLE_PERMISSIONS;
+      });
+
+      useEffect(() => {
+        localStorage.setItem('dc_v9_role_permissions', JSON.stringify(rolePermissions));
+      }, [rolePermissions]);
+
       const currentAccount = useMemo(() => {
         if (!currentSession) return DEFAULT_ACCOUNTS[0];
         const found = accounts.find(a => a.dni === currentSession.dni);
@@ -1119,27 +1187,25 @@
 
       const permissions = useMemo(() => {
         const isSuperAdmin = currentAccount?.dni === '74248477' || currentRole === 'admin';
-        const isEditor = currentRole === 'editor';
-        const isViewer = currentRole === 'viewer';
-        const isDebtor = currentRole === 'debtor';
+        const rolePerms = rolePermissions[currentRole] || DEFAULT_ROLE_PERMISSIONS[currentRole] || DEFAULT_ROLE_PERMISSIONS.editor;
 
         return {
           role: currentRole,
           roleMeta: ROLE_METADATA[currentRole] || ROLE_METADATA.admin,
-          canCreatePurchase: true,
-          canEditPurchase: true,
-          canDeletePurchase: true,
-          canCreateCard: true,
-          canEditCard: true,
-          canDeleteCard: true,
-          canManageCloud: isSuperAdmin,
+          canCreatePurchase: isSuperAdmin ? true : !!rolePerms.canCreatePurchase,
+          canEditPurchase: isSuperAdmin ? true : !!rolePerms.canEditPurchase,
+          canDeletePurchase: isSuperAdmin ? true : !!rolePerms.canDeletePurchase,
+          canCreateCard: isSuperAdmin ? true : !!rolePerms.canCreateCard,
+          canEditCard: isSuperAdmin ? true : !!rolePerms.canEditCard,
+          canDeleteCard: isSuperAdmin ? true : !!rolePerms.canDeleteCard,
+          canManageCloud: isSuperAdmin ? true : !!rolePerms.canManageCloud,
           canManageAccounts: isSuperAdmin && (currentSession?.dni === '74248477' || currentAccount?.dni === '74248477'),
-          canExportImport: true,
-          isReadOnly: isViewer,
-          isDebtorOnly: isDebtor,
+          canExportImport: isSuperAdmin ? true : !!rolePerms.canExportImport,
+          isReadOnly: currentRole === 'viewer',
+          isDebtorOnly: currentRole === 'debtor',
           debtorFriendName: currentAccount?.debtorFriendName || ''
         };
-      }, [currentRole, currentAccount, currentSession]);
+      }, [currentRole, currentAccount, currentSession, rolePermissions]);
 
       // Login / Register / Logout Handlers
       const handleLogin = (dniVal, pinVal) => {
@@ -2043,7 +2109,7 @@
         };
       }, [cards, purchases, subscriptions, lastMonthDebt, simulatorBoost, tc]);
 
-      // Smart Dynamic Notifications Generator (v1.0.1)
+      // Smart Dynamic Notifications Generator (v1.1.0)
       const notifications = useMemo(() => {
         const list = [];
 
@@ -2111,7 +2177,7 @@
             type: 'info',
             tab: 'tarjetas',
             badge: '✨ Gestor Listo',
-            title: '¡Bienvenido a Gestor de deudas El Shuashe v1.0.1!',
+            title: '¡Bienvenido a Gestor de deudas El Shuashe v1.1.0!',
             message: 'Tu base de datos está lista y en blanco. Pulsa "+ Añadir Tarjeta" para registrar tus tarjetas reales (CMR, BCP, BBVA, Interbank...) y empezar a controlar tus cuotas.',
             actionLabel: '+ Registrar Primera Tarjeta'
           });
@@ -2122,11 +2188,19 @@
 
       // CRUD Handlers
       const handleUpdateCard = (updated) => {
+        if (!permissions.canEditCard) {
+          triggerToast('🔒 Tu rol actual no tiene permisos para modificar tarjetas');
+          return;
+        }
         setCards(prev => prev.map(c => c.id === updated.id ? updated : c));
         triggerToast(`Tarjeta ${updated.name} actualizada`);
       };
 
       const handleAddCard = (newCard) => {
+        if (!permissions.canCreateCard) {
+          triggerToast('🔒 Tu rol actual no tiene permisos para crear tarjetas');
+          return;
+        }
         setCards(prev => [...prev, { ...newCard, id: 'card_' + Date.now() }]);
         setIsAddingCard(false);
         triggerToast(`Tarjeta ${newCard.name} agregada`);
@@ -2237,7 +2311,7 @@
         setProfile({
           userName: friendUserName,
           appTitle: 'Gestor de deudas El Shuashe',
-          appSubtitle: 'Control Inteligente de Tarjetas & Deudas (v1.0.1)',
+          appSubtitle: 'Control Inteligente de Tarjetas & Deudas (v1.1.0)',
           logoStyle: 'official'
         });
         setCards([
@@ -2284,6 +2358,10 @@
       };
 
       const handleExportJSON = () => {
+        if (!permissions.canExportImport) {
+          triggerToast('🔒 Tu rol actual no tiene permiso para exportar datos');
+          return;
+        }
         const payload = {
           version: '9.0',
           exportedAt: new Date().toISOString(),
@@ -2414,7 +2492,7 @@
                         title="Haz clic para editar el título del Workspace"
                       />
                       <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
-                        v1.0.1
+                        v1.1.0
                       </span>
                     </div>
                     <input
@@ -2794,8 +2872,15 @@
                 <CardsView
                   cards={cards}
                   metrics={metrics}
+                  permissions={permissions}
                   onSelectCard={(id) => setSelectedCardId(id)}
-                  onAddCard={() => setIsAddingCard(true)}
+                  onAddCard={() => {
+                    if (!permissions.canCreateCard) {
+                      triggerToast('🔒 Tu rol actual no tiene permiso para crear tarjetas');
+                      return;
+                    }
+                    setIsAddingCard(true);
+                  }}
                   formatSoles={formatSoles}
                   formatMoney={formatMoney}
                 />
@@ -2878,21 +2963,34 @@
                   subscriptions={subscriptions}
                   cards={cards}
                   friends={friends}
+                  permissions={permissions}
                   filterFriend={filterFriend}
                   setFilterFriend={setFilterFriend}
-                  onAddSubscription={() => setEditingSubscription({
-                    name: '',
-                    monthlyAmount: '',
-                    currency: 'PEN',
-                    cardId: cards[0]?.id || 'bcp',
-                    billingCycle: 'Mensual',
-                    active: true,
-                    isPaidThisMonth: false,
-                    splitMode: 'own',
-                    equalPartsCount: 2,
-                    debtors: []
-                  })}
-                  onEditSubscription={(s) => setEditingSubscription(s)}
+                  onAddSubscription={() => {
+                    if (!permissions.canCreatePurchase) {
+                      triggerToast('🔒 Tu rol actual no tiene permiso para crear suscripciones');
+                      return;
+                    }
+                    setEditingSubscription({
+                      name: '',
+                      monthlyAmount: '',
+                      currency: 'PEN',
+                      cardId: cards[0]?.id || 'bcp',
+                      billingCycle: 'Mensual',
+                      active: true,
+                      isPaidThisMonth: false,
+                      splitMode: 'own',
+                      equalPartsCount: 2,
+                      debtors: []
+                    });
+                  }}
+                  onEditSubscription={(s) => {
+                    if (!permissions.canEditPurchase) {
+                      triggerToast('🔒 Tu rol actual no tiene permiso para editar suscripciones');
+                      return;
+                    }
+                    setEditingSubscription(s);
+                  }}
                   onDeleteSubscription={handleDeleteSubscription}
                   formatSoles={formatSoles}
                   formatMoney={formatMoney}
@@ -2969,6 +3067,8 @@
             <AccountsManagerModal
               accounts={accounts}
               setAccounts={setAccounts}
+              rolePermissions={rolePermissions}
+              setRolePermissions={setRolePermissions}
               currentSession={currentSession}
               setCurrentSession={setCurrentSession}
               currentAccount={currentAccount}
@@ -3020,6 +3120,7 @@
               cardStats={metrics.byCard[selectedCardId]}
               purchases={purchases.filter(p => p.cardId === selectedCardId)}
               subscriptions={subscriptions.filter(s => s.cardId === selectedCardId)}
+              permissions={permissions}
               onClose={() => setSelectedCardId(null)}
               onUpdateCard={handleUpdateCard}
               onDeleteCard={handleDeleteCard}
@@ -3937,7 +4038,7 @@ end $$;`;
     // ==========================================
     // 7. CARDS VIEW
     // ==========================================
-    function CardsView({ cards, metrics, onSelectCard, onAddCard, formatSoles, formatMoney }) {
+    function CardsView({ cards, metrics, permissions, onSelectCard, onAddCard, formatSoles, formatMoney }) {
       return (
         <div className="max-w-6xl mx-auto space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -3947,9 +4048,11 @@ end $$;`;
                 Toca cualquier tarjeta para editar su nombre, línea de crédito, seguro de desgravamen o borrar consumos.
               </p>
             </div>
-            <button onClick={onAddCard} className="theme-accent-bg px-4 py-2.5 rounded-2xl text-xs font-bold shadow-lg">
-              + Añadir Tarjeta
-            </button>
+            {permissions?.canCreateCard !== false && (
+              <button onClick={onAddCard} className="theme-accent-bg px-4 py-2.5 rounded-2xl text-xs font-bold shadow-lg">
+                + Añadir Tarjeta
+              </button>
+            )}
           </div>
 
           {cards.length === 0 ? (
@@ -4450,6 +4553,7 @@ end $$;`;
       subscriptions,
       cards,
       friends,
+      permissions,
       filterFriend,
       setFilterFriend,
       onAddSubscription,
@@ -4465,9 +4569,11 @@ end $$;`;
               <h2 className="text-2xl font-black">🔄 Suscripciones Fijas Mensuales</h2>
               <p className="text-xs theme-text-muted">Gastos recurrentes (Platzi, Spotify, YouTube) individuales o divididos con amigos.</p>
             </div>
-            <button onClick={onAddSubscription} className="theme-accent-bg px-4 py-2.5 rounded-2xl text-xs font-bold shadow-lg">
-              + Nueva Suscripción
-            </button>
+            {permissions?.canCreatePurchase !== false && (
+              <button onClick={onAddSubscription} className="theme-accent-bg px-4 py-2.5 rounded-2xl text-xs font-bold shadow-lg">
+                + Nueva Suscripción
+              </button>
+            )}
           </div>
 
           {subscriptions.length === 0 ? (
@@ -4502,8 +4608,12 @@ end $$;`;
                           {card?.name || 'Tarjeta'}
                         </span>
                         <div className="flex gap-1">
-                          <button onClick={() => onEditSubscription(sub)} className="p-1.5 rounded-xl theme-elevated">✏️</button>
-                          <button onClick={() => onDeleteSubscription(sub.id)} className="p-1.5 rounded-xl theme-elevated text-rose-400">🗑️</button>
+                          {permissions?.canEditPurchase && (
+                            <button onClick={() => onEditSubscription(sub)} className="p-1.5 rounded-xl theme-elevated" title="Editar">✏️</button>
+                          )}
+                          {permissions?.canDeletePurchase && (
+                            <button onClick={() => onDeleteSubscription(sub.id)} className="p-1.5 rounded-xl theme-elevated text-rose-400" title="Borrar">🗑️</button>
+                          )}
                         </div>
                       </div>
 
@@ -4833,6 +4943,8 @@ end $$;`;
     function AccountsManagerModal({
       accounts,
       setAccounts,
+      rolePermissions,
+      setRolePermissions,
       currentSession,
       setCurrentSession,
       currentAccount,
@@ -4849,6 +4961,43 @@ end $$;`;
       const isSuperAdmin = permissions?.role === 'admin' || currentSession?.dni === '74248477';
 
       const AVATAR_OPTIONS = ['👑', '✏️', '👁️', '🤝', '💼', '🚀', '💰', '🛡️', '🧑‍💻', '🎯', '⚡', '📊'];
+
+      const handleToggleRolePermission = (roleId, permKey) => {
+        if (!isSuperAdmin) {
+          triggerToast('🔒 Solo el Superadministrador puede modificar los permisos de los roles');
+          return;
+        }
+        if (roleId === 'admin') {
+          triggerToast('👑 Los permisos del Administrador Total no se pueden restringir');
+          return;
+        }
+        setRolePermissions(prev => {
+          const currentRoleMap = prev[roleId] || DEFAULT_ROLE_PERMISSIONS[roleId] || {};
+          const newVal = !currentRoleMap[permKey];
+          const updated = {
+            ...prev,
+            [roleId]: {
+              ...currentRoleMap,
+              [permKey]: newVal
+            }
+          };
+          localStorage.setItem('dc_v9_role_permissions', JSON.stringify(updated));
+          const permDef = CAPABILITY_DEFINITIONS.find(c => c.key === permKey);
+          const roleDef = ROLE_METADATA[roleId];
+          triggerToast(`${newVal ? '✅ Activado' : '❌ Desactivado'}: "${permDef?.label || permKey}" para ${roleDef?.label || roleId}`);
+          return updated;
+        });
+      };
+
+      const handleResetRolePermissions = () => {
+        if (!isSuperAdmin) {
+          triggerToast('🔒 Solo el Superadministrador puede restablecer los permisos');
+          return;
+        }
+        setRolePermissions(DEFAULT_ROLE_PERMISSIONS);
+        localStorage.setItem('dc_v9_role_permissions', JSON.stringify(DEFAULT_ROLE_PERMISSIONS));
+        triggerToast('↺ Permisos de roles restablecidos a los valores por defecto');
+      };
 
       const handleSwitchAccount = (acc) => {
         if (acc.dni === currentSession?.dni) {
@@ -4987,7 +5136,7 @@ end $$;`;
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-black">Gestor de Cuentas & Roles</h3>
                     <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                      Multi-tenant v1.0.1
+                      Multi-tenant v1.1.0
                     </span>
                   </div>
                   <p className="text-xs theme-text-muted">
@@ -5345,101 +5494,92 @@ end $$;`;
               </div>
             )}
 
-            {/* TAB 2: RBAC PERMISSIONS MATRIX */}
+            {/* TAB 2: RBAC PERMISSIONS MATRIX (INTERACTIVE EDITOR) */}
             {activeTab === 'matrix' && (
               <div className="space-y-4">
-                <div className="theme-surface border overflow-x-auto shadow-xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-xs">
+                  <div>
+                    <span className="font-extrabold text-indigo-300 block text-sm">🛡️ Editor de Permisos por Rol en Tiempo Real</span>
+                    <span className="theme-text-muted text-[11px]">
+                      Haz clic en cualquier botón de <strong>Gestor</strong>, <strong>Auditor</strong> o <strong>Deudor</strong> para conceder o revocar permisos inmediatamente.
+                    </span>
+                  </div>
+                  {isSuperAdmin && (
+                    <button
+                      onClick={handleResetRolePermissions}
+                      className="px-3 py-1.5 rounded-xl theme-elevated border hover:bg-white/10 text-slate-300 font-bold text-xs shrink-0"
+                      title="Restablecer los permisos a la configuración recomendada por defecto"
+                    >
+                      ↺ Restablecer Valores
+                    </button>
+                  )}
+                </div>
+
+                <div className="theme-surface border overflow-x-auto shadow-xl rounded-2xl">
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
                       <tr className="border-b theme-border theme-text-muted uppercase text-[10px]">
-                        <th className="py-3 px-4 font-bold">Capacidad / Acción</th>
-                        <th className="py-3 px-3 text-center text-amber-400 font-black">👑 Admin</th>
-                        <th className="py-3 px-3 text-center text-blue-400 font-black">✏️ Gestor</th>
-                        <th className="py-3 px-3 text-center text-purple-400 font-black">👁️ Auditor</th>
-                        <th className="py-3 px-3 text-center text-emerald-400 font-black">🤝 Deudor</th>
+                        <th className="py-3.5 px-4 font-bold min-w-[220px]">Capacidad / Permiso del Sistema</th>
+                        <th className="py-3.5 px-3 text-center text-amber-400 font-black min-w-[120px]">👑 Admin</th>
+                        <th className="py-3.5 px-3 text-center text-blue-400 font-black min-w-[120px]">✏️ Gestor</th>
+                        <th className="py-3.5 px-3 text-center text-purple-400 font-black min-w-[120px]">👁️ Auditor</th>
+                        <th className="py-3.5 px-3 text-center text-emerald-400 font-black min-w-[120px]">🤝 Deudor</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y theme-border">
-                      <tr className="hover:bg-white/5">
-                        <td className="py-2.5 px-4 font-semibold text-white">
-                          🛒 Registrar nuevas compras y suscripciones
-                        </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
-                      </tr>
-                      <tr className="hover:bg-white/5">
-                        <td className="py-2.5 px-4 font-semibold text-white">
-                          ✏️ Modificar cuotas, importes y descripciones
-                        </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
-                      </tr>
-                      <tr className="hover:bg-white/5">
-                        <td className="py-2.5 px-4 font-semibold text-white">
-                          🗑️ Eliminar compras y deudas del sistema
-                        </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
-                      </tr>
-                      <tr className="hover:bg-white/5">
-                        <td className="py-2.5 px-4 font-semibold text-white">
-                          💳 Crear, editar y configurar tarjetas de crédito
-                        </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
-                      </tr>
-                      <tr className="hover:bg-white/5">
-                        <td className="py-2.5 px-4 font-semibold text-white">
-                          ⚡ Configurar Supabase Cloud / BD en la Nube
-                        </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
-                      </tr>
-                      <tr className="hover:bg-white/5">
-                        <td className="py-2.5 px-4 font-semibold text-white">
-                          👥 Crear, editar y borrar usuarios y roles
-                        </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Sí</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-rose-400">❌ No</td>
-                      </tr>
-                      <tr className="hover:bg-white/5">
-                        <td className="py-2.5 px-4 font-semibold text-white">
-                          📊 Ver Dashboard financiero global
-                        </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Completo</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">✅ Completo</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-purple-300">👁️ Consulta</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-300">👤 Solo sus deudas</td>
-                      </tr>
-                      <tr className="hover:bg-white/5">
-                        <td className="py-2.5 px-4 font-semibold text-white">
-                          🤝 Vista personal filtrada (Solo ve sus deudas asignadas)
-                        </td>
-                        <td className="py-2.5 px-3 text-center font-bold text-slate-500">-</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-slate-500">-</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-slate-500">-</td>
-                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">⭐ Exclusivo</td>
-                      </tr>
+                      {CAPABILITY_DEFINITIONS.map(cap => {
+                        return (
+                          <tr key={cap.key} className="hover:bg-white/5 transition-colors">
+                            <td className="py-3 px-4">
+                              <div className="font-bold text-white flex items-center gap-1.5">
+                                <span>{cap.icon}</span>
+                                <span>{cap.label}</span>
+                              </div>
+                              <span className="text-[11px] theme-text-muted block mt-0.5">{cap.desc}</span>
+                            </td>
+
+                            {/* ADMIN: Protected always true */}
+                            <td className="py-3 px-3 text-center">
+                              <span className="px-2.5 py-1 rounded-xl text-[10px] font-black uppercase bg-amber-500/15 text-amber-300 border border-amber-500/30 inline-flex items-center gap-1">
+                                <span>🔒</span>
+                                <span>Siempre Sí</span>
+                              </span>
+                            </td>
+
+                            {/* EDITOR / VIEWER / DEBTOR TOGGLES */}
+                            {['editor', 'viewer', 'debtor'].map(roleId => {
+                              const rolePermMap = rolePermissions[roleId] || DEFAULT_ROLE_PERMISSIONS[roleId] || {};
+                              const isAllowed = !!rolePermMap[cap.key];
+
+                              return (
+                                <td key={roleId} className="py-3 px-3 text-center">
+                                  <button
+                                    onClick={() => handleToggleRolePermission(roleId, cap.key)}
+                                    disabled={!isSuperAdmin}
+                                    className={`px-3 py-1.5 rounded-xl font-extrabold text-[11px] transition-all inline-flex items-center gap-1 border shadow-sm ${
+                                      isAllowed
+                                        ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border-emerald-500/40 hover:scale-105'
+                                        : 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border-rose-500/30 hover:scale-105'
+                                    } ${!isSuperAdmin ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer active:scale-95'}`}
+                                    title={isSuperAdmin ? `Haz clic para ${isAllowed ? 'desactivar' : 'activar'} este permiso` : 'Solo el Superadministrador puede modificar permisos'}
+                                  >
+                                    <span>{isAllowed ? '✅' : '❌'}</span>
+                                    <span>{isAllowed ? 'Permitido' : 'Denegado'}</span>
+                                  </button>
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-xs space-y-1">
-                  <div className="font-extrabold text-indigo-300">💡 Nota de Seguridad Multi-tenant</div>
+                <div className="p-3.5 rounded-2xl bg-black/40 border theme-border text-xs space-y-1">
+                  <div className="font-extrabold text-amber-300">💡 Información del Sistema de Roles & Persistencia</div>
                   <p className="theme-text-muted leading-relaxed">
-                    Cada usuario registrado cuenta con su propio <strong>Workspace ID (<code className="font-mono text-amber-300">ws_[DNI]</code>)</strong>. Los registros no se mezclan y quedan protegidos por su clave PIN de 4 dígitos tanto en el almacenamiento local como en <strong>Supabase</strong>.
+                    Los permisos configurados aquí se aplican inmediatamente a cualquier usuario con ese rol. Si cambias un permiso de Gestor o Auditor, el sistema restringirá los botones de creación, edición o borrado en tiempo real sin recargar la página.
                   </p>
                 </div>
               </div>
@@ -5627,6 +5767,7 @@ end $$;`;
       cardStats,
       purchases,
       subscriptions,
+      permissions,
       onClose,
       onUpdateCard,
       onDeleteCard,
@@ -5651,6 +5792,7 @@ end $$;`;
 
       const saveConfig = (e) => {
         e.preventDefault();
+        if (permissions && !permissions.canEditCard) return;
         onUpdateCard({
           ...form,
           limit: parseFloat(form.limit) || 0,
@@ -5678,9 +5820,11 @@ end $$;`;
               <div className="p-4 rounded-2xl theme-elevated border space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-bold uppercase text-indigo-400">Nombre, Fechas y Seguro de Desgravamen</span>
-                  <button onClick={() => setEditingConfig(!editingConfig)} className="text-xs font-bold underline">
-                    {editingConfig ? 'Cancelar' : '✏️ Editar Parámetros de Tarjeta'}
-                  </button>
+                  {permissions?.canEditCard !== false && (
+                    <button onClick={() => setEditingConfig(!editingConfig)} className="text-xs font-bold underline">
+                      {editingConfig ? 'Cancelar' : '✏️ Editar Parámetros de Tarjeta'}
+                    </button>
+                  )}
                 </div>
 
                 {editingConfig && (
@@ -5791,9 +5935,11 @@ end $$;`;
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold">Consumos en {card.name} ({purchases.length})</h3>
-                  <button onClick={() => onAddPurchaseForCard(card)} className="px-3 py-1.5 rounded-xl theme-accent-bg text-xs font-bold">
-                    + Añadir Compra
-                  </button>
+                  {permissions?.canCreatePurchase !== false && (
+                    <button onClick={() => onAddPurchaseForCard(card)} className="px-3 py-1.5 rounded-xl theme-accent-bg text-xs font-bold">
+                      + Añadir Compra
+                    </button>
+                  )}
                 </div>
 
                 {purchases.map(p => {
@@ -5819,8 +5965,12 @@ end $$;`;
               </div>
             </div>
 
-            <div className="pt-4 border-t theme-border flex justify-between">
-              <button onClick={() => onDeleteCard(card.id)} className="text-xs text-rose-400 underline">Eliminar tarjeta completa</button>
+            <div className="pt-4 border-t theme-border flex justify-between items-center">
+              {permissions?.canDeleteCard !== false ? (
+                <button onClick={() => onDeleteCard(card.id)} className="text-xs text-rose-400 underline">Eliminar tarjeta completa</button>
+              ) : (
+                <span className="text-[11px] theme-text-muted italic">Modo lectura de tarjeta</span>
+              )}
               <button onClick={onClose} className="px-5 py-2 rounded-xl theme-accent-bg text-xs font-bold">Cerrar Inspector</button>
             </div>
           </div>
@@ -6087,7 +6237,7 @@ end $$;`;
             <div className="flex items-center justify-between pb-3 border-b theme-border">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">Personalización Total</span>
-                <h3 className="text-xl font-black mt-0.5">🎨 Estudio de Paletas, Logo y Estilo (v1.0.1)</h3>
+                <h3 className="text-xl font-black mt-0.5">🎨 Estudio de Paletas, Logo y Estilo (v1.1.0)</h3>
               </div>
               <button onClick={onClose} className="px-3 py-1.5 rounded-xl theme-elevated font-bold text-xs">✕ Cerrar</button>
             </div>
@@ -6184,7 +6334,7 @@ end $$;`;
           const res = await Notification.requestPermission();
           setPermState(res);
           if (res === 'granted') {
-            new Notification('🔔 Gestor de deudas El Shuashe v1.0.1', {
+            new Notification('🔔 Gestor de deudas El Shuashe v1.1.0', {
               body: '¡Notificaciones activadas con éxito! Te avisaremos de tus fechas de corte y pagos.',
               icon: 'logo.jpg'
             });
@@ -6200,7 +6350,7 @@ end $$;`;
                 <span className="text-xl">🔔</span>
                 <div>
                   <h3 className="text-lg font-black text-white">Alertas y Notificaciones</h3>
-                  <p className="text-[11px] theme-text-muted">Centro de avisos inteligentes de El Shuashe v1.0.1</p>
+                  <p className="text-[11px] theme-text-muted">Centro de avisos inteligentes de El Shuashe v1.1.0</p>
                 </div>
               </div>
               <button onClick={onClose} className="p-1 rounded-xl theme-elevated hover:text-white text-slate-400">✕</button>
@@ -6272,7 +6422,7 @@ end $$;`;
             </div>
 
             <div className="pt-2 border-t theme-border flex justify-between items-center text-[10px] theme-text-muted">
-              <span>Gestor de deudas El Shuashe v1.0.1</span>
+              <span>Gestor de deudas El Shuashe v1.1.0</span>
               <button onClick={onClose} className="px-4 py-1.5 rounded-xl theme-elevated font-bold text-xs hover:text-white">
                 Cerrar
               </button>
