@@ -245,44 +245,20 @@
     // ==========================================
     // 2. INITIAL REALISTIC DATA FOR ARNOLD & ROLES
     // ==========================================
-    const DEFAULT_ACCOUNTS = [
-      {
-        id: 'acc_arnold',
-        name: 'Arnold Moreno',
-        email: 'aema21032000@gmail.com',
-        role: 'admin', // 'admin' | 'editor' | 'viewer' | 'debtor'
-        avatar: '👑',
-        debtorFriendName: '',
-        pin: ''
-      },
-      {
-        id: 'acc_gestor',
-        name: 'Gestor Financiero',
-        email: 'gestor@trisagio.pe',
-        role: 'editor',
-        avatar: '✏️',
-        debtorFriendName: '',
-        pin: ''
-      },
-      {
-        id: 'acc_viewer',
-        name: 'Auditor Externo',
-        email: 'auditor@deudacero.pe',
-        role: 'viewer',
-        avatar: '👁️',
-        debtorFriendName: '',
-        pin: ''
-      },
-      {
-        id: 'acc_amigo_cmr',
-        name: 'Amigo 1 (CMR)',
-        email: 'amigo1@gmail.com',
-        role: 'debtor',
-        avatar: '🤝',
-        debtorFriendName: 'Amigo 1 (CMR)',
-        pin: ''
-      }
-    ];
+    const SUPERADMIN_USER = {
+      id: 'acc_74248477',
+      dni: '74248477',
+      pin: '2103',
+      name: 'Arnold Moreno',
+      email: 'aema21032000@gmail.com',
+      role: 'admin', // Superadministrador
+      avatar: '👑',
+      workspaceId: 'ws_74248477',
+      debtorFriendName: '',
+      createdAt: '2026-11-03'
+    };
+
+    const DEFAULT_ACCOUNTS = [SUPERADMIN_USER];
 
     const ROLE_METADATA = {
       admin: {
@@ -661,6 +637,314 @@
     }
 
     // ==========================================
+    // 3.5 AUTH SCREEN & GATEKEEPER (DNI + 4-DIGIT PIN)
+    // ==========================================
+    function AuthScreen({ onLogin, onRegister, accounts }) {
+      const [authTab, setAuthTab] = useState('login'); // 'login' | 'register'
+      const [dni, setDni] = useState('');
+      const [pin, setPin] = useState('');
+      const [regDni, setRegDni] = useState('');
+      const [regName, setRegName] = useState('');
+      const [regPin, setRegPin] = useState('');
+      const [regPinConfirm, setRegPinConfirm] = useState('');
+      const [error, setError] = useState('');
+      const [showSuperadminTip, setShowSuperadminTip] = useState(true);
+
+      const handleLoginSubmit = (e) => {
+        e.preventDefault();
+        setError('');
+        const cleanDni = dni.trim().replace(/[^0-9]/g, '');
+        const cleanPin = pin.trim().replace(/[^0-9]/g, '');
+
+        if (cleanDni.length !== 8) {
+          setError('El DNI debe tener exactamente 8 dígitos numéricos.');
+          return;
+        }
+        if (cleanPin.length !== 4) {
+          setError('El PIN de seguridad debe tener exactamente 4 dígitos.');
+          return;
+        }
+        const res = onLogin(cleanDni, cleanPin);
+        if (!res.success) {
+          setError(res.error || 'Credenciales incorrectas');
+        }
+      };
+
+      const handleRegisterSubmit = (e) => {
+        e.preventDefault();
+        setError('');
+        const cleanDni = regDni.trim().replace(/[^0-9]/g, '');
+        const cleanPin = regPin.trim().replace(/[^0-9]/g, '');
+        const cleanConfirm = regPinConfirm.trim().replace(/[^0-9]/g, '');
+
+        if (cleanDni.length !== 8) {
+          setError('El DNI debe tener exactamente 8 dígitos numéricos.');
+          return;
+        }
+        if (!regName.trim()) {
+          setError('Ingresa tu nombre completo.');
+          return;
+        }
+        if (cleanPin.length !== 4) {
+          setError('El PIN de seguridad debe tener 4 dígitos.');
+          return;
+        }
+        if (cleanPin !== cleanConfirm) {
+          setError('Los PINs no coinciden. Verifica que ambos sean iguales.');
+          return;
+        }
+        const res = onRegister(cleanDni, regName, cleanPin);
+        if (!res.success) {
+          setError(res.error || 'Error al registrar la cuenta');
+        }
+      };
+
+      const handleQuickSuperadmin = () => {
+        setAuthTab('login');
+        setDni('74248477');
+        setPin('2103');
+        setError('');
+      };
+
+      return (
+        <div className="min-h-screen bg-[#080c14] text-white flex flex-col items-center justify-center p-4 relative overflow-hidden select-none">
+          {/* Ambient Lighting Gradients */}
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-indigo-600/15 rounded-full blur-[130px] pointer-events-none" />
+          <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute top-10 left-10 w-[350px] h-[350px] bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+
+          {/* Center Card */}
+          <div className="w-full max-w-md theme-surface border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl relative z-10 space-y-6">
+            {/* Brand Logo & Header */}
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/30 text-3xl mb-1">
+                💳
+              </div>
+              <h1 className="text-2xl font-black tracking-tight text-white">Deuda Cero</h1>
+              <p className="text-xs text-slate-400">
+                Gestor Financiero Inteligente & Control de Tarjetas de Crédito
+              </p>
+            </div>
+
+            {/* Segmented Auth Tabs */}
+            <div className="grid grid-cols-2 p-1 rounded-2xl bg-black/40 border border-white/10 text-xs font-bold">
+              <button
+                type="button"
+                onClick={() => { setAuthTab('login'); setError(''); }}
+                className={`py-2.5 rounded-xl transition-all ${
+                  authTab === 'login'
+                    ? 'theme-accent-bg text-white shadow'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                🔑 Iniciar Sesión
+              </button>
+              <button
+                type="button"
+                onClick={() => { setAuthTab('register'); setError(''); }}
+                className={`py-2.5 rounded-xl transition-all ${
+                  authTab === 'register'
+                    ? 'theme-accent-bg text-white shadow'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                📝 Crear Cuenta
+              </button>
+            </div>
+
+            {/* Error Banner */}
+            {error && (
+              <div className="p-3 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-bold flex items-center gap-2">
+                <span>⚠️</span>
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* LOGIN FORM */}
+            {authTab === 'login' ? (
+              <form onSubmit={handleLoginSubmit} className="space-y-4">
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-300">
+                    Número de DNI (8 dígitos)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400">🪪</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={8}
+                      required
+                      autoFocus
+                      value={dni}
+                      onChange={e => {
+                        setDni(e.target.value.replace(/[^0-9]/g, ''));
+                        setError('');
+                      }}
+                      placeholder="Ej. 74248477"
+                      className="w-full pl-10 pr-4 py-3 rounded-2xl bg-black/50 border border-white/15 focus:border-indigo-500 font-mono font-bold text-sm text-white placeholder-slate-600 outline-none transition-all tracking-wider"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-300">
+                    PIN de Seguridad (4 dígitos)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400">🔒</span>
+                    <input
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={4}
+                      required
+                      value={pin}
+                      onChange={e => {
+                        setPin(e.target.value.replace(/[^0-9]/g, ''));
+                        setError('');
+                      }}
+                      placeholder="••••"
+                      className="w-full pl-10 pr-4 py-3 rounded-2xl bg-black/50 border border-white/15 focus:border-indigo-500 font-mono font-black text-center text-lg text-amber-300 placeholder-slate-600 outline-none transition-all tracking-[0.5em]"
+                    />
+                  </div>
+                </div>
+
+                {/* Superadmin Quick Access Chip */}
+                {showSuperadminTip && (
+                  <div
+                    onClick={handleQuickSuperadmin}
+                    className="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-bold flex items-center justify-between cursor-pointer hover:bg-amber-500/20 transition-all group"
+                    title="Haz clic para auto-rellenar las credenciales de Arnold"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-base group-hover:scale-110 transition-transform">👑</span>
+                      <span>Superadmin: <strong>DNI 74248477</strong> • PIN: <strong>2103</strong></span>
+                    </div>
+                    <span className="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded-lg border border-amber-500/40">
+                      Rellenar
+                    </span>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full py-3.5 px-4 rounded-2xl theme-accent-bg text-white font-extrabold text-sm shadow-xl hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                >
+                  <span>Ingresar a mi Gestor</span>
+                  <span className="text-base">→</span>
+                </button>
+              </form>
+            ) : (
+              /* REGISTER FORM */
+              <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-300">
+                    Número de DNI (8 dígitos) *
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={8}
+                    required
+                    value={regDni}
+                    onChange={e => {
+                      setRegDni(e.target.value.replace(/[^0-9]/g, ''));
+                      setError('');
+                    }}
+                    placeholder="Ej. 12345678"
+                    className="w-full px-4 py-2.5 rounded-2xl bg-black/50 border border-white/15 focus:border-indigo-500 font-mono font-bold text-sm text-white placeholder-slate-600 outline-none tracking-wider"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-300">
+                    Nombre Completo *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={regName}
+                    onChange={e => {
+                      setRegName(e.target.value);
+                      setError('');
+                    }}
+                    placeholder="Ej: Carlos Mendoza"
+                    className="w-full px-4 py-2.5 rounded-2xl bg-black/50 border border-white/15 focus:border-indigo-500 font-bold text-sm text-white placeholder-slate-600 outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-bold text-slate-300">
+                      Crear PIN (4 dígitos) *
+                    </label>
+                    <input
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={4}
+                      required
+                      value={regPin}
+                      onChange={e => {
+                        setRegPin(e.target.value.replace(/[^0-9]/g, ''));
+                        setError('');
+                      }}
+                      placeholder="••••"
+                      className="w-full px-3 py-2.5 rounded-2xl bg-black/50 border border-white/15 font-mono font-black text-center text-base text-amber-300 outline-none tracking-widest"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-bold text-slate-300">
+                      Confirmar PIN *
+                    </label>
+                    <input
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={4}
+                      required
+                      value={regPinConfirm}
+                      onChange={e => {
+                        setRegPinConfirm(e.target.value.replace(/[^0-9]/g, ''));
+                        setError('');
+                      }}
+                      placeholder="••••"
+                      className="w-full px-3 py-2.5 rounded-2xl bg-black/50 border border-white/15 font-mono font-black text-center text-base text-amber-300 outline-none tracking-widest"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] space-y-1">
+                  <div className="font-extrabold flex items-center gap-1.5">
+                    <span>🛡️</span>
+                    <span>Espacio 100% Privado & Base Limpia</span>
+                  </div>
+                  <p className="text-slate-400 text-[10px] leading-tight">
+                    Tu cuenta tendrá su propio workspace independiente. Nadie más podrá ver tus finanzas ni tarjetas, y comenzarás con la base en cero para cargar tus datos reales.
+                  </p>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3.5 px-4 rounded-2xl theme-accent-bg text-white font-extrabold text-sm shadow-xl hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                >
+                  <span>Crear mi Gestor Privado</span>
+                  <span>✨</span>
+                </button>
+              </form>
+            )}
+
+            {/* Footer info */}
+            <div className="pt-2 border-t theme-border text-center text-[10px] theme-text-muted space-y-1">
+              <p>Deuda Cero v9.0 • Creado por Arnold Moreno</p>
+              <p className="text-slate-500">
+                Sincronización en la nube Supabase PostgreSQL • Cifrado Local
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
     // 4. MAIN APPLICATION COMPONENT (REAL-TIME CLOUD + NOTION UI)
     // ==========================================
     function App() {
@@ -673,26 +957,123 @@
         }
       };
 
-      // Persistent States (Reads from v9/v7/v6 seamlessly)
-      const [profile, setProfile] = useState(() => loadLocal('dc_v7_profile', ARNOLD_PROFILE));
-      const [themeKey, setThemeKey] = useState(() => loadLocal('dc_v7_theme_key', 'notionDark'));
-      const [customColors, setCustomColors] = useState(() => loadLocal('dc_v7_custom_colors', {
-        bgMain: '#090d16',
-        bgSurface: '#131b2e',
-        bgElevated: '#1e2942',
-        textMain: '#f8fafc',
-        textMuted: '#94a3b8',
-        accentPrimary: '#8b5cf6',
-        cardRadius: '20',
-        glassBlur: '16'
-      }));
+      // ==========================================
+      // AUTHENTICATION & MULTI-TENANT WORKSPACE ENGINE
+      // ==========================================
+      const [accounts, setAccounts] = useState(() => {
+        const stored = loadLocal('dc_v9_all_accounts', null);
+        if (Array.isArray(stored) && stored.length > 0) {
+          if (!stored.some(a => a.dni === '74248477')) {
+            return [SUPERADMIN_USER, ...stored];
+          }
+          return stored;
+        }
+        return DEFAULT_ACCOUNTS;
+      });
 
-      const [exchangeRate, setExchangeRate] = useState(() => loadLocal('dc_v7_tc', loadLocal('dc_v6_tc', 3.78)));
-      const [cards, setCards] = useState(() => loadLocal('dc_v7_cards', loadLocal('dc_v6_cards', DEFAULT_CARDS)));
-      const [purchases, setPurchases] = useState(() => loadLocal('dc_v7_purchases', loadLocal('dc_v6_purchases', DEFAULT_PURCHASES)));
-      const [subscriptions, setSubscriptions] = useState(() => loadLocal('dc_v7_subs', loadLocal('dc_v6_subs', DEFAULT_SUBSCRIPTIONS)));
-      const [friends, setFriends] = useState(() => loadLocal('dc_v7_friends', loadLocal('dc_v6_friends', DEFAULT_FRIENDS)));
-      const [lastMonthDebt, setLastMonthDebt] = useState(() => loadLocal('dc_v7_last_month', loadLocal('dc_v6_last_month', 14850.00)));
+      const [currentSession, setCurrentSession] = useState(() => {
+        try {
+          const raw = localStorage.getItem('dc_v9_active_session');
+          return raw ? JSON.parse(raw) : null;
+        } catch {
+          return null;
+        }
+      });
+
+      const activeDNI = currentSession?.dni || '74248477';
+      const userWorkspaceKey = `dc_ws_${activeDNI}_data`;
+
+      // Persistent States (per user workspace) - starts clean & empty
+      const [profile, setProfile] = useState(() => {
+        const ws = loadLocal(userWorkspaceKey, null);
+        if (ws && ws.profile) return ws.profile;
+        return {
+          userName: currentSession?.name || 'Arnold Moreno',
+          appTitle: 'Deuda Cero',
+          appSubtitle: 'Gestor Financiero Personal',
+          logoStyle: 'dynamicS'
+        };
+      });
+
+      const [themeKey, setThemeKey] = useState(() => {
+        const ws = loadLocal(userWorkspaceKey, null);
+        return ws?.themeKey || 'notionDark';
+      });
+
+      const [customColors, setCustomColors] = useState(() => {
+        const ws = loadLocal(userWorkspaceKey, null);
+        return ws?.customColors || {
+          bgMain: '#090d16',
+          bgSurface: '#131b2e',
+          bgElevated: '#1e2942',
+          textMain: '#f8fafc',
+          textMuted: '#94a3b8',
+          accentPrimary: '#8b5cf6',
+          cardRadius: '20',
+          glassBlur: '16'
+        };
+      });
+
+      const [exchangeRate, setExchangeRate] = useState(() => {
+        const ws = loadLocal(userWorkspaceKey, null);
+        return typeof ws?.exchangeRate === 'number' ? ws.exchangeRate : 3.78;
+      });
+
+      // START CLEAN & EMPTY AS USER REQUESTED:
+      // "y que los nuevos tengan la base de datos vacia incluso la mia y yo pongo los datos nuevos, de pronto"
+      const [cards, setCards] = useState(() => {
+        const ws = loadLocal(userWorkspaceKey, null);
+        return Array.isArray(ws?.cards) ? ws.cards : [];
+      });
+
+      const [purchases, setPurchases] = useState(() => {
+        const ws = loadLocal(userWorkspaceKey, null);
+        return Array.isArray(ws?.purchases) ? ws.purchases : [];
+      });
+
+      const [subscriptions, setSubscriptions] = useState(() => {
+        const ws = loadLocal(userWorkspaceKey, null);
+        return Array.isArray(ws?.subscriptions) ? ws.subscriptions : [];
+      });
+
+      const [friends, setFriends] = useState(() => {
+        const ws = loadLocal(userWorkspaceKey, null);
+        return Array.isArray(ws?.friends) ? ws.friends : [];
+      });
+
+      const [lastMonthDebt, setLastMonthDebt] = useState(() => {
+        const ws = loadLocal(userWorkspaceKey, null);
+        return typeof ws?.lastMonthDebt === 'number' ? ws.lastMonthDebt : 0;
+      });
+
+      // Sync workspace states whenever session changes
+      useEffect(() => {
+        if (!currentSession) return;
+        const key = `dc_ws_${currentSession.dni}_data`;
+        const ws = loadLocal(key, null);
+        if (ws) {
+          if (ws.profile) setProfile(ws.profile);
+          if (Array.isArray(ws.cards)) setCards(ws.cards);
+          if (Array.isArray(ws.purchases)) setPurchases(ws.purchases);
+          if (Array.isArray(ws.subscriptions)) setSubscriptions(ws.subscriptions);
+          if (Array.isArray(ws.friends)) setFriends(ws.friends);
+          if (typeof ws.exchangeRate === 'number') setExchangeRate(ws.exchangeRate);
+          if (typeof ws.lastMonthDebt === 'number') setLastMonthDebt(ws.lastMonthDebt);
+        } else {
+          setCards([]);
+          setPurchases([]);
+          setSubscriptions([]);
+          setFriends([]);
+          setLastMonthDebt(0);
+          setExchangeRate(3.78);
+          setProfile({
+            userName: currentSession.name,
+            appTitle: 'Deuda Cero',
+            appSubtitle: 'Gestor Financiero Personal',
+            logoStyle: 'dynamicS'
+          });
+        }
+      }, [currentSession?.dni]);
 
       // Navigation & View States
       const [activeTab, setActiveTab] = useState('dashboard');
@@ -713,21 +1094,16 @@
       const [showCloudDatabaseModal, setShowCloudDatabaseModal] = useState(false);
       const [showAccountsManager, setShowAccountsManager] = useState(false);
 
-      // ==========================================
-      // ROLES & ACCOUNTS RBAC ENGINE
-      // ==========================================
-      const [accounts, setAccounts] = useState(() => loadLocal('dc_v9_accounts', DEFAULT_ACCOUNTS));
-      const [currentAccountId, setCurrentAccountId] = useState(() => loadLocal('dc_v9_current_account_id', 'acc_arnold'));
-
       const currentAccount = useMemo(() => {
-        const found = accounts.find(a => a.id === currentAccountId);
-        return found || accounts[0] || DEFAULT_ACCOUNTS[0];
-      }, [accounts, currentAccountId]);
+        if (!currentSession) return DEFAULT_ACCOUNTS[0];
+        const found = accounts.find(a => a.dni === currentSession.dni);
+        return found || currentSession;
+      }, [accounts, currentSession]);
 
       const currentRole = currentAccount?.role || 'admin';
 
       const permissions = useMemo(() => {
-        const isSuperAdmin = currentRole === 'admin';
+        const isSuperAdmin = currentAccount?.dni === '74248477' || currentRole === 'admin';
         const isEditor = currentRole === 'editor';
         const isViewer = currentRole === 'viewer';
         const isDebtor = currentRole === 'debtor';
@@ -735,27 +1111,127 @@
         return {
           role: currentRole,
           roleMeta: ROLE_METADATA[currentRole] || ROLE_METADATA.admin,
-          canCreatePurchase: isSuperAdmin || isEditor,
-          canEditPurchase: isSuperAdmin || isEditor,
-          canDeletePurchase: isSuperAdmin,
-          canCreateCard: isSuperAdmin || isEditor,
-          canEditCard: isSuperAdmin || isEditor,
-          canDeleteCard: isSuperAdmin,
+          canCreatePurchase: true,
+          canEditPurchase: true,
+          canDeletePurchase: true,
+          canCreateCard: true,
+          canEditCard: true,
+          canDeleteCard: true,
           canManageCloud: isSuperAdmin,
-          canManageAccounts: isSuperAdmin,
-          canExportImport: isSuperAdmin || isEditor,
+          canManageAccounts: isSuperAdmin && (currentSession?.dni === '74248477' || currentAccount?.dni === '74248477'),
+          canExportImport: true,
           isReadOnly: isViewer,
           isDebtorOnly: isDebtor,
           debtorFriendName: currentAccount?.debtorFriendName || ''
         };
-      }, [currentRole, currentAccount]);
+      }, [currentRole, currentAccount, currentSession]);
 
-      // ==========================================
-      // REAL-TIME CLOUD DATABASE ENGINE (SUPABASE REALTIME + FIREBASE + REST)
-      // ==========================================
-      const [workspaceId, setWorkspaceId] = useState(() =>
-        loadLocal('dc_v9_workspace_id', window.__VERCEL_DEFAULT_WORKSPACE_ID__ || 'arnold-moreno-shuashe')
-      );
+      // Login / Register / Logout Handlers
+      const handleLogin = (dniVal, pinVal) => {
+        const cleanDni = dniVal.trim();
+        const cleanPin = pinVal.trim();
+
+        const found = accounts.find(a => a.dni === cleanDni);
+        if (!found) {
+          return { success: false, error: `El DNI ${cleanDni} no está registrado. Ve a la pestaña "Crear Cuenta".` };
+        }
+        if (found.pin !== cleanPin) {
+          return { success: false, error: 'PIN de 4 dígitos incorrecto. Verifica e intenta nuevamente.' };
+        }
+
+        const sessionData = {
+          id: found.id,
+          dni: found.dni,
+          name: found.name,
+          role: found.role || 'admin',
+          avatar: found.avatar || '👤',
+          workspaceId: found.workspaceId || ('ws_' + found.dni),
+          debtorFriendName: found.debtorFriendName || ''
+        };
+
+        localStorage.setItem('dc_v9_active_session', JSON.stringify(sessionData));
+        setCurrentSession(sessionData);
+        triggerToast(`🎉 ¡Bienvenido de nuevo, ${found.name}!`);
+        return { success: true };
+      };
+
+      const handleRegister = (dniVal, nameVal, pinVal) => {
+        const cleanDni = dniVal.trim().replace(/[^0-9]/g, '');
+        const cleanPin = pinVal.trim().replace(/[^0-9]/g, '');
+        const cleanName = nameVal.trim();
+
+        if (cleanDni.length !== 8) {
+          return { success: false, error: 'El DNI debe tener exactamente 8 dígitos.' };
+        }
+        if (cleanPin.length !== 4) {
+          return { success: false, error: 'El PIN debe tener exactamente 4 dígitos.' };
+        }
+        if (!cleanName) {
+          return { success: false, error: 'Ingresa tu nombre completo.' };
+        }
+
+        if (accounts.some(a => a.dni === cleanDni)) {
+          return { success: false, error: `El DNI ${cleanDni} ya se encuentra registrado. Inicia sesión en la pestaña izquierda.` };
+        }
+
+        const newUser = {
+          id: 'acc_' + cleanDni,
+          dni: cleanDni,
+          pin: cleanPin,
+          name: cleanName,
+          email: `${cleanDni}@deudacero.pe`,
+          role: 'admin',
+          avatar: '👤',
+          workspaceId: 'ws_' + cleanDni,
+          debtorFriendName: '',
+          createdAt: new Date().toISOString()
+        };
+
+        const updated = [...accounts, newUser];
+        setAccounts(updated);
+        localStorage.setItem('dc_v9_all_accounts', JSON.stringify(updated));
+
+        // Create empty workspace for the new user
+        const initialWs = {
+          profile: {
+            userName: cleanName,
+            appTitle: 'Deuda Cero',
+            appSubtitle: 'Gestor Financiero Personal',
+            logoStyle: 'dynamicS'
+          },
+          themeKey: 'notionDark',
+          exchangeRate: 3.78,
+          cards: [],
+          purchases: [],
+          subscriptions: [],
+          friends: [],
+          lastMonthDebt: 0
+        };
+        localStorage.setItem(`dc_ws_${cleanDni}_data`, JSON.stringify(initialWs));
+
+        const sessionData = {
+          id: newUser.id,
+          dni: newUser.dni,
+          name: newUser.name,
+          role: newUser.role,
+          avatar: newUser.avatar,
+          workspaceId: newUser.workspaceId,
+          debtorFriendName: ''
+        };
+
+        localStorage.setItem('dc_v9_active_session', JSON.stringify(sessionData));
+        setCurrentSession(sessionData);
+        triggerToast(`🎉 ¡Cuenta creada con éxito! Bienvenido, ${cleanName}.`);
+        return { success: true };
+      };
+
+      const handleLogout = () => {
+        localStorage.removeItem('dc_v9_active_session');
+        setCurrentSession(null);
+        triggerToast('🚪 Sesión cerrada correctamente');
+      };
+
+      const workspaceId = currentSession ? (currentSession.workspaceId || ('ws_' + currentSession.dni)) : 'ws_default';
       const [cloudProvider, setCloudProvider] = useState(() =>
         loadLocal('dc_v9_cloud_provider', 'supabase')
       );
@@ -1846,6 +2322,19 @@
         }
       };
 
+      // ==========================================
+      // GATEKEEPER WALL: AUTH REQUIRED BEFORE ACCESS
+      // ==========================================
+      if (!currentSession) {
+        return (
+          <AuthScreen
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            accounts={accounts}
+          />
+        );
+      }
+
       return (
         <div className="flex h-screen overflow-hidden theme-main-bg">
           <input type="file" ref={fileInputRef} onChange={handleImportJSON} accept=".json" className="hidden" />
@@ -2021,6 +2510,21 @@
                 </button>
               </div>
 
+              {/* Cerrar Sesión Sidebar Button */}
+              <button
+                onClick={handleLogout}
+                className="w-full mt-2 py-2 px-3 rounded-xl text-xs font-bold bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center justify-between transition-all shadow"
+                title="Cerrar la sesión de este usuario"
+              >
+                <div className="flex items-center gap-2">
+                  <span>🚪</span>
+                  <span>Cerrar Sesión</span>
+                </div>
+                <span className="text-[10px] font-mono opacity-80 bg-black/40 px-2 py-0.5 rounded-full text-rose-200">
+                  DNI {currentSession.dni}
+                </span>
+              </button>
+
               {/* PERMANENT CREATOR CREDITS */}
               <div className="pt-2.5 mt-1 border-t theme-border text-center space-y-0.5">
                 <p className="text-[10px] uppercase tracking-widest theme-text-muted">Desarrollado por</p>
@@ -2082,6 +2586,16 @@
                     <span className={`text-[9px] font-black uppercase px-1.5 py-0.2 rounded ${permissions.roleMeta.bgColor} ${permissions.roleMeta.textColor} border ${permissions.roleMeta.borderColor}`}>
                       {permissions.roleMeta.badge}
                     </span>
+                  </button>
+
+                  {/* Cerrar Sesión Header Button */}
+                  <button
+                    onClick={handleLogout}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/25 transition-all text-rose-300 shadow"
+                    title="Cerrar sesión actual y salir al inicio"
+                  >
+                    <span>🚪</span>
+                    <span className="hidden sm:inline">Cerrar Sesión</span>
                   </button>
 
                   <div className="md:hidden flex items-center gap-1 text-xs">
@@ -2398,11 +2912,12 @@
             <AccountsManagerModal
               accounts={accounts}
               setAccounts={setAccounts}
-              currentAccountId={currentAccountId}
-              setCurrentAccountId={setCurrentAccountId}
+              currentSession={currentSession}
+              setCurrentSession={setCurrentSession}
               currentAccount={currentAccount}
               permissions={permissions}
               friends={friends}
+              onLogout={handleLogout}
               onClose={() => setShowAccountsManager(false)}
               triggerToast={triggerToast}
             />
@@ -2953,6 +3468,35 @@ end $$;`;
 
       return (
         <div className="max-w-6xl mx-auto space-y-6">
+          {/* Empty State Banner when Workspace is Clean */}
+          {Object.keys(metrics.byCard).length === 0 && (
+            <div className="p-6 md:p-8 rounded-3xl bg-gradient-to-br from-indigo-950/40 via-purple-950/30 to-slate-900 border border-indigo-500/30 text-center space-y-4 shadow-2xl">
+              <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/40 flex items-center justify-center text-3xl mx-auto shadow-inner">
+                ✨
+              </div>
+              <div className="max-w-md mx-auto">
+                <h3 className="text-xl font-black text-white">¡Espacio Financiero Limpio y Listo!</h3>
+                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                  Has iniciado con una base de datos en cero. Registra tus tarjetas de crédito reales (CMR, BCP, BBVA, Interbank...) y tus compras para proyectar tu libertad financiera.
+                </p>
+              </div>
+              <div className="flex items-center justify-center gap-3 flex-wrap pt-2">
+                <button
+                  onClick={() => onNavigateTab('tarjetas')}
+                  className="theme-accent-bg px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg"
+                >
+                  💳 + Registrar Primera Tarjeta
+                </button>
+                <button
+                  onClick={() => onNavigateTab('compras')}
+                  className="theme-elevated border px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-white/10"
+                >
+                  🛍️ + Registrar Primera Compra
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Interactive Multi-View Chart Hub */}
           <div className="theme-surface border p-5 md:p-7 shadow-xl">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b theme-border">
@@ -3351,84 +3895,104 @@ end $$;`;
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {cards.map(card => {
-              const st = metrics.byCard[card.id] || {
-                totalDebtPEN: 0, totalDebtNative: 0, monthlyBillPEN: 0, monthlyBillNative: 0,
-                desgravamenPEN: 0, availableCreditNative: card.limit, utilization: 0
-              };
-              const cur = card.currency || 'PEN';
+          {cards.length === 0 ? (
+            <div className="theme-surface border p-12 text-center rounded-3xl space-y-4">
+              <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/40 flex items-center justify-center text-3xl mx-auto shadow-inner">
+                💳
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-white">No tienes tarjetas registradas</h3>
+                <p className="text-xs md:text-sm theme-text-muted mt-1 max-w-md mx-auto">
+                  Agrega tus tarjetas de crédito reales (CMR Falabella, BCP, BBVA, Interbank, etc.) para monitorear tus fechas de corte, pagos mensuales y cupo disponible.
+                </p>
+              </div>
+              <button
+                onClick={onAddCard}
+                className="theme-accent-bg px-6 py-3 rounded-2xl text-xs font-bold shadow-lg hover:brightness-110 transition-all inline-flex items-center gap-2"
+              >
+                <span>+</span> Registrar Mi Primera Tarjeta
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {cards.map(card => {
+                const st = metrics.byCard[card.id] || {
+                  totalDebtPEN: 0, totalDebtNative: 0, monthlyBillPEN: 0, monthlyBillNative: 0,
+                  desgravamenPEN: 0, availableCreditNative: card.limit, utilization: 0
+                };
+                const cur = card.currency || 'PEN';
 
-              return (
-                <div
-                  key={card.id}
-                  onClick={() => onSelectCard(card.id)}
-                  className={`rounded-3xl p-6 text-white bg-gradient-to-br ${card.gradient || 'from-slate-800 to-slate-950'} border border-white/15 shadow-xl cursor-pointer hover:scale-[1.01] transition-all`}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="text-[10px] uppercase tracking-widest text-white/70 font-bold">{card.bank} • {cur}</span>
-                      <h3 className="text-xl font-black mt-0.5">{card.name}</h3>
+                return (
+                  <div
+                    key={card.id}
+                    onClick={() => onSelectCard(card.id)}
+                    className={`rounded-3xl p-6 text-white bg-gradient-to-br ${card.gradient || 'from-slate-800 to-slate-950'} border border-white/15 shadow-xl cursor-pointer hover:scale-[1.01] transition-all`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="text-[10px] uppercase tracking-widest text-white/70 font-bold">{card.bank} • {cur}</span>
+                        <h3 className="text-xl font-black mt-0.5">{card.name}</h3>
+                      </div>
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/15">
+                        ✏️ Configurar / Consumos
+                      </span>
                     </div>
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/15">
-                      ✏️ Configurar / Consumos
-                    </span>
-                  </div>
 
-                  <div className="grid grid-cols-3 gap-3 my-5 p-3.5 rounded-2xl bg-black/35 border border-white/10">
-                    <div>
-                      <p className="text-[10px] uppercase text-white/60">Deuda Total</p>
-                      <p className="text-base font-black font-mono-num mt-0.5">{formatMoney(st.totalDebtNative, cur)}</p>
-                      {cur === 'USD' && <p className="text-[10px] text-emerald-300">≈ {formatSoles(st.totalDebtPEN)}</p>}
+                    <div className="grid grid-cols-3 gap-3 my-5 p-3.5 rounded-2xl bg-black/35 border border-white/10">
+                      <div>
+                        <p className="text-[10px] uppercase text-white/60">Deuda Total</p>
+                        <p className="text-base font-black font-mono-num mt-0.5">{formatMoney(st.totalDebtNative, cur)}</p>
+                        {cur === 'USD' && <p className="text-[10px] text-emerald-300">≈ {formatSoles(st.totalDebtPEN)}</p>}
+                      </div>
+                      <div>
+                        <p className="text-[10px] uppercase text-white/60">Pago del Mes</p>
+                        <p className="text-base font-black font-mono-num text-amber-300 mt-0.5">{formatMoney(st.monthlyBillNative, cur)}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] uppercase text-white/60">Disponible</p>
+                        <p className="text-base font-black font-mono-num text-emerald-300 mt-0.5">{formatMoney(st.availableCreditNative, cur)}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[10px] uppercase text-white/60">Pago del Mes</p>
-                      <p className="text-base font-black font-mono-num text-amber-300 mt-0.5">{formatMoney(st.monthlyBillNative, cur)}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase text-white/60">Disponible</p>
-                      <p className="text-base font-black font-mono-num text-emerald-300 mt-0.5">{formatMoney(st.availableCreditNative, cur)}</p>
-                    </div>
-                  </div>
 
-                  <div className="space-y-1.5 mb-4">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-white/75">Línea Total: {formatMoney(card.limit, cur)}</span>
-                      <span className="font-bold">{st.utilization.toFixed(1)}% usado</span>
+                    <div className="space-y-1.5 mb-4">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-white/75">Línea Total: {formatMoney(card.limit, cur)}</span>
+                        <span className="font-bold">{st.utilization.toFixed(1)}% usado</span>
+                      </div>
+                      <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{
+                            width: `${st.utilization}%`,
+                            backgroundColor: st.utilization > 75 ? '#f43f5e' : st.utilization > 40 ? '#f59e0b' : '#10b981'
+                          }}
+                        />
+                      </div>
                     </div>
-                    <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{
-                          width: `${st.utilization}%`,
-                          backgroundColor: st.utilization > 75 ? '#f43f5e' : st.utilization > 40 ? '#f59e0b' : '#10b981'
-                        }}
-                      />
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
-                    <div className="bg-white/10 px-2.5 py-2 rounded-xl">
-                      <span className="text-white/60 block">Cierre</span>
-                      <span className="font-bold">Día {card.closingDay}</span>
-                    </div>
-                    <div className="bg-amber-500/20 border border-amber-400/30 px-2.5 py-2 rounded-xl">
-                      <span className="text-amber-200 block">Fecha Pago</span>
-                      <span className="font-bold text-amber-300">{card.dueMonthLabel}</span>
-                    </div>
-                    <div className="bg-white/10 px-2.5 py-2 rounded-xl">
-                      <span className="text-white/60 block">Desgravamen</span>
-                      <span className="font-bold">{card.preCutoffHackActive ? 'S/ 0 (Hack)' : formatSoles(st.desgravamenPEN)}</span>
-                    </div>
-                    <div className="bg-white/10 px-2.5 py-2 rounded-xl">
-                      <span className="text-white/60 block">Membresía</span>
-                      <span className="font-bold">{formatMoney(card.membershipCost, card.membershipCurrency || 'PEN')}</span>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+                      <div className="bg-white/10 px-2.5 py-2 rounded-xl">
+                        <span className="text-white/60 block">Cierre</span>
+                        <span className="font-bold">Día {card.closingDay}</span>
+                      </div>
+                      <div className="bg-amber-500/20 border border-amber-400/30 px-2.5 py-2 rounded-xl">
+                        <span className="text-amber-200 block">Fecha Pago</span>
+                        <span className="font-bold text-amber-300">{card.dueMonthLabel}</span>
+                      </div>
+                      <div className="bg-white/10 px-2.5 py-2 rounded-xl">
+                        <span className="text-white/60 block">Desgravamen</span>
+                        <span className="font-bold">{card.preCutoffHackActive ? 'S/ 0 (Hack)' : formatSoles(st.desgravamenPEN)}</span>
+                      </div>
+                      <div className="bg-white/10 px-2.5 py-2 rounded-xl">
+                        <span className="text-white/60 block">Membresía</span>
+                        <span className="font-bold">{formatMoney(card.membershipCost, card.membershipCurrency || 'PEN')}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       );
     }
@@ -3612,11 +4176,25 @@ end $$;`;
                   </tr>
                 </thead>
                 <tbody className="divide-y theme-border">
-                  {filtered.map(p => {
-                    const installments = Math.max(1, Number(p.totalInstallments) || 1);
-                    const monthly = (Number(p.totalAmount) || 0) / installments;
-                    const cur = p.currency || 'PEN';
-                    const hasDebtors = p.debtors && p.debtors.length > 0;
+                  {filtered.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" className="py-12 text-center theme-text-muted">
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <span className="text-3xl">🛍️</span>
+                          <span className="font-bold text-sm text-white">No hay consumos ni deudas registradas</span>
+                          <span className="text-xs max-w-sm">
+                            {searchQuery || filterCardId !== 'ALL' || filterFriend !== 'ALL' || filterOwnership !== 'ALL'
+                              ? 'No hay consumos que coincidan con los filtros aplicados.'
+                              : 'Haz clic en "+ Nueva Compra" arriba para registrar tu primera compra o cuota.'}
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : filtered.map(p => {
+                      const installments = Math.max(1, Number(p.totalInstallments) || 1);
+                      const monthly = (Number(p.totalAmount) || 0) / installments;
+                      const cur = p.currency || 'PEN';
+                      const hasDebtors = p.debtors && p.debtors.length > 0;
 
                     return (
                       <tr key={p.id} className="hover:bg-white/5 transition-colors">
@@ -3695,6 +4273,26 @@ end $$;`;
                   })}
                 </tbody>
               </table>
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="theme-surface border p-12 text-center rounded-3xl space-y-3">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/40 flex items-center justify-center text-3xl mx-auto shadow-inner">
+                🛍️
+              </div>
+              <h3 className="text-lg font-black text-white">No hay compras ni consumos registrados</h3>
+              <p className="text-xs theme-text-muted max-w-md mx-auto">
+                {searchQuery || filterCardId !== 'ALL' || filterFriend !== 'ALL' || filterOwnership !== 'ALL'
+                  ? 'No se encontraron consumos que coincidan con tu búsqueda o filtros.'
+                  : 'Empieza registrando una compra en cuotas o directa vinculada a cualquiera de tus tarjetas.'}
+              </p>
+              {permissions?.canCreatePurchase && (
+                <button
+                  onClick={onAddPurchase}
+                  className="theme-accent-bg px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg inline-flex items-center gap-1.5"
+                >
+                  <span>+</span> Registrar Nueva Compra
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3815,43 +4413,61 @@ end $$;`;
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {subscriptions.map(sub => {
-              const card = cards.find(c => c.id === sub.cardId);
-              const cur = sub.currency || 'PEN';
-              const friendsPart = (sub.debtors || []).reduce((acc, d) => acc + (Number(d.monthlyShare) || 0), 0);
-              const myPart = Math.max(0, sub.monthlyAmount - friendsPart);
+          {subscriptions.length === 0 ? (
+            <div className="theme-surface border p-12 text-center rounded-3xl space-y-3">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/40 flex items-center justify-center text-3xl mx-auto shadow-inner">
+                🔄
+              </div>
+              <h3 className="text-lg font-black text-white">No tienes suscripciones registradas</h3>
+              <p className="text-xs theme-text-muted max-w-md mx-auto">
+                Registra tus servicios mensuales fijos (Netflix, Spotify, ChatGPT Plus, iCloud, etc.) y calcula cuánto te corresponde a ti y cuánto te deben tus amigos.
+              </p>
+              <button
+                onClick={onAddSubscription}
+                className="theme-accent-bg px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg inline-flex items-center gap-1.5"
+              >
+                <span>+</span> Nueva Suscripción
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {subscriptions.map(sub => {
+                const card = cards.find(c => c.id === sub.cardId);
+                const cur = sub.currency || 'PEN';
+                const friendsPart = (sub.debtors || []).reduce((acc, d) => acc + (Number(d.monthlyShare) || 0), 0);
+                const myPart = Math.max(0, sub.monthlyAmount - friendsPart);
 
-              return (
-                <div key={sub.id} className="theme-surface border p-5 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-black/40 text-white">
-                        {card?.name || 'Tarjeta'}
-                      </span>
-                      <div className="flex gap-1">
-                        <button onClick={() => onEditSubscription(sub)} className="p-1.5 rounded-xl theme-elevated">✏️</button>
-                        <button onClick={() => onDeleteSubscription(sub.id)} className="p-1.5 rounded-xl theme-elevated text-rose-400">🗑️</button>
+                return (
+                  <div key={sub.id} className="theme-surface border p-5 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-black/40 text-white">
+                          {card?.name || 'Tarjeta'}
+                        </span>
+                        <div className="flex gap-1">
+                          <button onClick={() => onEditSubscription(sub)} className="p-1.5 rounded-xl theme-elevated">✏️</button>
+                          <button onClick={() => onDeleteSubscription(sub.id)} className="p-1.5 rounded-xl theme-elevated text-rose-400">🗑️</button>
+                        </div>
                       </div>
-                    </div>
 
-                    <h3 className="font-bold text-base">{sub.name}</h3>
+                      <h3 className="font-bold text-base">{sub.name}</h3>
 
-                    <div className="my-3 p-3.5 rounded-2xl theme-elevated border flex justify-between items-baseline">
-                      <div>
-                        <span className="text-[10px] uppercase block theme-text-muted">Cargo Mensual</span>
-                        <span className="text-xl font-black font-mono-num text-indigo-400">{formatMoney(sub.monthlyAmount, cur)}</span>
-                      </div>
-                      <div className="text-right text-xs">
-                        <div className="text-rose-300">Tuyo: <strong>{formatMoney(myPart, cur)}</strong></div>
-                        {friendsPart > 0 && <div className="text-emerald-400">Amigos: <strong>{formatMoney(friendsPart, cur)}</strong></div>}
+                      <div className="my-3 p-3.5 rounded-2xl theme-elevated border flex justify-between items-baseline">
+                        <div>
+                          <span className="text-[10px] uppercase block theme-text-muted">Cargo Mensual</span>
+                          <span className="text-xl font-black font-mono-num text-indigo-400">{formatMoney(sub.monthlyAmount, cur)}</span>
+                        </div>
+                        <div className="text-right text-xs">
+                          <div className="text-rose-300">Tuyo: <strong>{formatMoney(myPart, cur)}</strong></div>
+                          {friendsPart > 0 && <div className="text-emerald-400">Amigos: <strong>{formatMoney(friendsPart, cur)}</strong></div>}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       );
     }
@@ -3976,79 +4592,91 @@ end $$;`;
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {debtorEntries.map(item => (
-              <div key={`${item.itemId}_${item.debtorId}`} className="theme-surface border p-5 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-2 gap-2">
-                    {renamingFriend === item.debtorName ? (
-                      <div className="flex items-center gap-1 flex-1">
-                        <input
-                          type="text"
-                          value={newFriendNameVal}
-                          onChange={e => setNewFriendNameVal(e.target.value)}
-                          className="px-2 py-1 rounded bg-black/60 border theme-border text-xs font-bold w-full"
-                          autoFocus
-                        />
+          {debtorEntries.length === 0 ? (
+            <div className="theme-surface border p-12 text-center rounded-3xl space-y-3">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-3xl mx-auto shadow-inner">
+                👥
+              </div>
+              <h3 className="text-lg font-black text-white">No tienes cobros pendientes</h3>
+              <p className="text-xs theme-text-muted max-w-md mx-auto">
+                Cuando registres una compra compartida o suscripción y le asignes una parte a un amigo o familiar, aparecerá aquí con botones automáticos para recordarles por WhatsApp.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {debtorEntries.map(item => (
+                <div key={`${item.itemId}_${item.debtorId}`} className="theme-surface border p-5 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-2 gap-2">
+                      {renamingFriend === item.debtorName ? (
+                        <div className="flex items-center gap-1 flex-1">
+                          <input
+                            type="text"
+                            value={newFriendNameVal}
+                            onChange={e => setNewFriendNameVal(e.target.value)}
+                            className="px-2 py-1 rounded bg-black/60 border theme-border text-xs font-bold w-full"
+                            autoFocus
+                          />
+                          <button
+                            onClick={() => {
+                              onRenameFriendGlobally(item.debtorName, newFriendNameVal);
+                              setRenamingFriend(null);
+                            }}
+                            className="px-2 py-1 rounded bg-emerald-600 text-white text-[10px] font-bold"
+                          >
+                            OK
+                          </button>
+                        </div>
+                      ) : (
                         <button
                           onClick={() => {
-                            onRenameFriendGlobally(item.debtorName, newFriendNameVal);
-                            setRenamingFriend(null);
+                            setRenamingFriend(item.debtorName);
+                            setNewFriendNameVal(item.debtorName);
                           }}
-                          className="px-2 py-1 rounded bg-emerald-600 text-white text-[10px] font-bold"
+                          className="font-bold text-sm hover:text-emerald-400 flex items-center gap-1 text-left"
+                          title="Haz clic para cambiar el nombre de este amigo en todo el sistema"
                         >
-                          OK
+                          <span>👤 {item.debtorName}</span>
+                          <span className="text-[10px] opacity-60">✏️</span>
                         </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          setRenamingFriend(item.debtorName);
-                          setNewFriendNameVal(item.debtorName);
-                        }}
-                        className="font-bold text-sm hover:text-emerald-400 flex items-center gap-1 text-left"
-                        title="Haz clic para cambiar el nombre de este amigo en todo el sistema"
-                      >
-                        <span>👤 {item.debtorName}</span>
-                        <span className="text-[10px] opacity-60">✏️</span>
-                      </button>
-                    )}
+                      )}
 
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-black/40 text-amber-300 shrink-0">
-                      {item.cardName} • {item.dueLabel}
-                    </span>
-                  </div>
-
-                  <p className="text-xs theme-text-muted">{item.description} ({item.badgeLabel})</p>
-
-                  <div className="my-3 p-3 rounded-2xl theme-elevated border flex justify-between items-baseline">
-                    <div>
-                      <span className="text-[10px] uppercase block theme-text-muted">Cobrar Mes</span>
-                      <span className="text-lg font-black font-mono-num text-emerald-400">{formatMoney(item.monthlyShareNative, item.currency)}</span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-black/40 text-amber-300 shrink-0">
+                        {item.cardName} • {item.dueLabel}
+                      </span>
                     </div>
-                    {!item.isSubscription && (
-                      <div className="text-right">
-                        <span className="text-[10px] uppercase block theme-text-muted">Saldo Total</span>
-                        <span className="text-xs font-bold font-mono-num">{formatMoney(item.remainingShareNative, item.currency)}</span>
+
+                    <p className="text-xs theme-text-muted">{item.description} ({item.badgeLabel})</p>
+
+                    <div className="my-3 p-3 rounded-2xl theme-elevated border flex justify-between items-baseline">
+                      <div>
+                        <span className="text-[10px] uppercase block theme-text-muted">Cobrar Mes</span>
+                        <span className="text-lg font-black font-mono-num text-emerald-400">{formatMoney(item.monthlyShareNative, item.currency)}</span>
                       </div>
-                    )}
+                      {!item.isSubscription && (
+                        <div className="text-right">
+                          <span className="text-[10px] uppercase block theme-text-muted">Saldo Total</span>
+                          <span className="text-xs font-bold font-mono-num">{formatMoney(item.remainingShareNative, item.currency)}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => onToggleDebtorPaid(item.itemId, item.debtorId, item.isSubscription)}
+                      className={`flex-1 py-2 rounded-xl text-xs font-bold ${item.paidThisMonth ? 'bg-emerald-500 text-slate-950' : 'theme-accent-bg'}`}
+                    >
+                      {item.paidThisMonth ? '✅ Ya pagó' : 'Marcar Cobrado'}
+                    </button>
+                    <button onClick={() => copyWhatsApp(item)} className="px-3 py-2 rounded-xl text-xs font-bold theme-elevated border">
+                      📲 WhatsApp
+                    </button>
                   </div>
                 </div>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => onToggleDebtorPaid(item.itemId, item.debtorId, item.isSubscription)}
-                    className={`flex-1 py-2 rounded-xl text-xs font-bold ${item.paidThisMonth ? 'bg-emerald-500 text-slate-950' : 'theme-accent-bg'}`}
-                  >
-                    {item.paidThisMonth ? '✅ Ya pagó' : 'Marcar Cobrado'}
-                  </button>
-                  <button onClick={() => copyWhatsApp(item)} className="px-3 py-2 rounded-xl text-xs font-bold theme-elevated border">
-                    📲 WhatsApp
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       );
     }
@@ -4148,11 +4776,12 @@ end $$;`;
     function AccountsManagerModal({
       accounts,
       setAccounts,
-      currentAccountId,
-      setCurrentAccountId,
+      currentSession,
+      setCurrentSession,
       currentAccount,
       permissions,
       friends,
+      onLogout,
       onClose,
       triggerToast
     }) {
@@ -4160,32 +4789,55 @@ end $$;`;
       const [editingAccount, setEditingAccount] = useState(null); // null or account object
       const [pinChallenge, setPinChallenge] = useState(null); // { targetAccount, inputPin, error }
 
-      const isSuperAdmin = permissions?.role === 'admin';
+      const isSuperAdmin = permissions?.role === 'admin' || currentSession?.dni === '74248477';
 
       const AVATAR_OPTIONS = ['👑', '✏️', '👁️', '🤝', '💼', '🚀', '💰', '🛡️', '🧑‍💻', '🎯', '⚡', '📊'];
 
       const handleSwitchAccount = (acc) => {
-        if (acc.id === currentAccountId) {
-          triggerToast('Esta cuenta ya es la sesión activa');
+        if (acc.dni === currentSession?.dni) {
+          triggerToast('Esta cuenta ya es tu sesión activa');
           return;
         }
         if (acc.pin && acc.pin.trim().length > 0) {
           setPinChallenge({ targetAccount: acc, inputPin: '', error: '' });
           return;
         }
-        setCurrentAccountId(acc.id);
+        const sessionData = {
+          id: acc.id,
+          dni: acc.dni,
+          name: acc.name,
+          role: acc.role || 'admin',
+          avatar: acc.avatar || '👤',
+          workspaceId: acc.workspaceId || ('ws_' + acc.dni),
+          debtorFriendName: acc.debtorFriendName || ''
+        };
+        localStorage.setItem('dc_v9_active_session', JSON.stringify(sessionData));
+        setCurrentSession(sessionData);
         const meta = ROLE_METADATA[acc.role] || ROLE_METADATA.admin;
         triggerToast(`Sesión cambiada a: ${acc.name} (${meta.badge})`);
+        onClose();
       };
 
       const handleVerifyPinAndSwitch = (e) => {
         e.preventDefault();
         if (!pinChallenge) return;
         if (pinChallenge.inputPin.trim() === pinChallenge.targetAccount.pin.trim()) {
-          setCurrentAccountId(pinChallenge.targetAccount.id);
-          const meta = ROLE_METADATA[pinChallenge.targetAccount.role] || ROLE_METADATA.admin;
-          triggerToast(`✅ PIN correcto. Sesión: ${pinChallenge.targetAccount.name} (${meta.badge})`);
+          const acc = pinChallenge.targetAccount;
+          const sessionData = {
+            id: acc.id,
+            dni: acc.dni,
+            name: acc.name,
+            role: acc.role || 'admin',
+            avatar: acc.avatar || '👤',
+            workspaceId: acc.workspaceId || ('ws_' + acc.dni),
+            debtorFriendName: acc.debtorFriendName || ''
+          };
+          localStorage.setItem('dc_v9_active_session', JSON.stringify(sessionData));
+          setCurrentSession(sessionData);
+          const meta = ROLE_METADATA[acc.role] || ROLE_METADATA.admin;
+          triggerToast(`✅ PIN correcto. Sesión: ${acc.name} (${meta.badge})`);
           setPinChallenge(null);
+          onClose();
         } else {
           setPinChallenge(prev => ({ ...prev, error: 'PIN incorrecto. Intenta nuevamente.' }));
         }
@@ -4194,12 +4846,13 @@ end $$;`;
       const handleStartCreate = () => {
         setEditingAccount({
           id: '',
+          dni: '',
           name: '',
           email: '',
           role: 'editor',
           avatar: '👤',
           debtorFriendName: friends[0] || '',
-          pin: ''
+          pin: '1234'
         });
       };
 
@@ -4209,23 +4862,40 @@ end $$;`;
 
       const handleSaveAccount = (e) => {
         e.preventDefault();
-        if (!editingAccount.name.trim()) {
-          triggerToast('⚠️ Ingresa un nombre válido');
+        const cleanDni = (editingAccount.dni || '').trim().replace(/[^0-9]/g, '');
+        const cleanPin = (editingAccount.pin || '').trim().replace(/[^0-9]/g, '');
+
+        if (cleanDni.length !== 8) {
+          triggerToast('⚠️ El DNI debe tener 8 dígitos numéricos');
           return;
         }
-        if (!editingAccount.email.trim()) {
-          triggerToast('⚠️ Ingresa un correo electrónico');
+        if (cleanPin.length !== 4) {
+          triggerToast('⚠️ El PIN debe tener 4 dígitos numéricos');
+          return;
+        }
+        if (!editingAccount.name.trim()) {
+          triggerToast('⚠️ Ingresa un nombre válido');
           return;
         }
 
         if (editingAccount.id) {
           // Actualizar cuenta existente
-          setAccounts(prev => prev.map(a => a.id === editingAccount.id ? { ...editingAccount } : a));
+          setAccounts(prev => prev.map(a => a.id === editingAccount.id ? { ...editingAccount, dni: cleanDni, pin: cleanPin } : a));
           triggerToast(`Cuenta actualizada: ${editingAccount.name}`);
         } else {
           // Crear cuenta nueva
-          const newId = 'acc_' + Date.now().toString(36);
-          const newAcc = { ...editingAccount, id: newId };
+          if (accounts.some(a => a.dni === cleanDni)) {
+            triggerToast(`⚠️ El DNI ${cleanDni} ya está registrado`);
+            return;
+          }
+          const newAcc = {
+            ...editingAccount,
+            id: 'acc_' + cleanDni,
+            dni: cleanDni,
+            pin: cleanPin,
+            workspaceId: 'ws_' + cleanDni,
+            email: editingAccount.email || `${cleanDni}@deudacero.pe`
+          };
           setAccounts(prev => [...prev, newAcc]);
           triggerToast(`Nueva cuenta creada: ${newAcc.name}`);
         }
@@ -4233,15 +4903,15 @@ end $$;`;
       };
 
       const handleDeleteAccount = (acc) => {
-        if (acc.id === currentAccountId) {
+        if (acc.dni === currentSession?.dni) {
           triggerToast('⚠️ No puedes eliminar la cuenta de tu sesión activa actual');
           return;
         }
-        if (acc.id === 'acc_arnold') {
-          triggerToast('⚠️ La cuenta principal de Arnold es permanente y no se puede eliminar');
+        if (acc.dni === '74248477') {
+          triggerToast('⚠️ La cuenta principal de Arnold (74248477) es permanente y no se puede eliminar');
           return;
         }
-        if (window.confirm(`¿Estás seguro de eliminar la cuenta de "${acc.name}"?`)) {
+        if (window.confirm(`¿Estás seguro de eliminar la cuenta de "${acc.name}" (DNI ${acc.dni})?`)) {
           setAccounts(prev => prev.filter(a => a.id !== acc.id));
           triggerToast(`Cuenta eliminada: ${acc.name}`);
         }
@@ -4260,11 +4930,11 @@ end $$;`;
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-black">Gestor de Cuentas & Roles</h3>
                     <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                      RBAC v9.0
+                      Multi-tenant v9.0
                     </span>
                   </div>
                   <p className="text-xs theme-text-muted">
-                    Control de accesos con seguridad por PIN, perfiles multi-usuario y sincronización en la nube Supabase.
+                    Espacios financieros aislados por DNI y seguridad por PIN de 4 dígitos.
                   </p>
                 </div>
               </div>
@@ -4288,22 +4958,26 @@ end $$;`;
                     <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${permissions?.roleMeta?.bgColor} ${permissions?.roleMeta?.textColor} border ${permissions?.roleMeta?.borderColor}`}>
                       {permissions?.roleMeta?.badge}
                     </span>
-                    {currentAccount?.pin && (
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/40 text-amber-300 border border-amber-500/30">
-                        🔒 PIN
-                      </span>
-                    )}
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-black/40 text-amber-300 border border-amber-500/30">
+                      🪪 DNI: {currentSession?.dni}
+                    </span>
                   </div>
-                  <p className="text-xs theme-text-muted">{currentAccount?.email}</p>
+                  <p className="text-xs theme-text-muted mt-0.5">
+                    Workspace ID: <code className="text-indigo-400 font-mono">ws_{currentSession?.dni}</code> (Privado e Independiente)
+                  </p>
                 </div>
               </div>
-              <div className="text-left sm:text-right">
-                <span className="text-[10px] uppercase font-bold text-emerald-400 block">🟢 Sesión Activa</span>
-                <span className="text-[11px] theme-text-muted">
-                  {currentAccount?.role === 'debtor' && currentAccount?.debtorFriendName
-                    ? `Deudas asignadas a: ${currentAccount.debtorFriendName}`
-                    : permissions?.roleMeta?.label}
-                </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    onLogout();
+                    onClose();
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 text-xs font-bold transition-all flex items-center gap-1.5"
+                >
+                  <span>🚪</span>
+                  <span>Cerrar Sesión</span>
+                </button>
               </div>
             </div>
 
@@ -4353,23 +5027,54 @@ end $$;`;
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                       <div>
+                        <label className="block font-bold mb-1">DNI (8 dígitos numéricos) *</label>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={8}
+                          required
+                          value={editingAccount.dni || ''}
+                          onChange={e => setEditingAccount({ ...editingAccount, dni: e.target.value.replace(/[^0-9]/g, '') })}
+                          placeholder="Ej: 74248477"
+                          className="w-full p-2.5 rounded-xl bg-black/40 border theme-border font-mono font-bold text-white tracking-wider"
+                        />
+                      </div>
+
+                      <div>
                         <label className="block font-bold mb-1">Nombre Completo *</label>
                         <input
                           type="text"
                           required
                           value={editingAccount.name}
                           onChange={e => setEditingAccount({ ...editingAccount, name: e.target.value })}
-                          placeholder="Ej: Arnold Moreno, Carlos Gestor..."
+                          placeholder="Ej: Arnold Moreno..."
                           className="w-full p-2.5 rounded-xl bg-black/40 border theme-border font-bold text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <label className="block font-bold mb-1">
+                          🔒 PIN de Acceso (4 dígitos) *
+                        </label>
+                        <input
+                          type="password"
+                          inputMode="numeric"
+                          maxLength={4}
+                          required
+                          value={editingAccount.pin || ''}
+                          onChange={e => setEditingAccount({ ...editingAccount, pin: e.target.value.replace(/[^0-9]/g, '') })}
+                          placeholder="••••"
+                          className="w-full p-2.5 rounded-xl bg-black/40 border theme-border font-mono font-black tracking-widest text-amber-300 text-center text-base"
                         />
                       </div>
 
                       <div>
-                        <label className="block font-bold mb-1">Correo Electrónico *</label>
+                        <label className="block font-bold mb-1">Correo Electrónico (Opcional)</label>
                         <input
                           type="email"
-                          required
-                          value={editingAccount.email}
+                          value={editingAccount.email || ''}
                           onChange={e => setEditingAccount({ ...editingAccount, email: e.target.value })}
                           placeholder="usuario@deudacero.pe"
                           className="w-full p-2.5 rounded-xl bg-black/40 border theme-border text-white"
@@ -4456,24 +5161,6 @@ end $$;`;
                       </div>
                     )}
 
-                    {/* PIN Security */}
-                    <div className="text-xs">
-                      <label className="block font-bold mb-1">
-                        🔒 PIN de Acceso (Opcional, 4 a 6 dígitos)
-                      </label>
-                      <input
-                        type="password"
-                        maxLength={6}
-                        value={editingAccount.pin || ''}
-                        onChange={e => setEditingAccount({ ...editingAccount, pin: e.target.value.replace(/[^0-9]/g, '') })}
-                        placeholder="Sin PIN (acceso libre) o ej: 2026"
-                        className="w-full sm:w-64 p-2.5 rounded-xl bg-black/40 border theme-border font-mono tracking-widest text-white"
-                      />
-                      <span className="text-[10px] theme-text-muted mt-1 block">
-                        Si configuras un PIN, el sistema lo solicitará cada vez que alguien intente cambiar a este usuario.
-                      </span>
-                    </div>
-
                     <div className="flex justify-end gap-2 pt-2 border-t theme-border">
                       <button
                         type="button"
@@ -4495,10 +5182,10 @@ end $$;`;
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400">
-                          Cuentas del Sistema ({accounts.length})
+                          Cuentas Registradas ({accounts.length})
                         </h4>
                         <p className="text-[11px] theme-text-muted">
-                          Haz clic en <strong>"Cambiar a esta cuenta"</strong> para alternar de usuario al instante.
+                          Cada usuario ingresa con su <strong>DNI y PIN de 4 dígitos</strong> y cuenta con su base de datos privada.
                         </p>
                       </div>
                       {isSuperAdmin && (
@@ -4515,11 +5202,11 @@ end $$;`;
                     <div className="grid grid-cols-1 gap-2.5">
                       {accounts.map(acc => {
                         const meta = ROLE_METADATA[acc.role] || ROLE_METADATA.admin;
-                        const isCurrent = acc.id === currentAccountId;
+                        const isCurrent = acc.dni === currentSession?.dni;
 
                         return (
                           <div
-                            key={acc.id}
+                            key={acc.id || acc.dni}
                             className={`p-3.5 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                               isCurrent
                                 ? 'bg-indigo-500/10 border-indigo-500/40 shadow-md ring-1 ring-indigo-500/30'
@@ -4536,18 +5223,13 @@ end $$;`;
                                   <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${meta.bgColor} ${meta.textColor} border ${meta.borderColor}`}>
                                     {meta.badge}
                                   </span>
-                                  {acc.pin && (
-                                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-black/50 text-amber-300 border border-amber-500/30" title="Protegido por PIN">
-                                      🔒 PIN
-                                    </span>
-                                  )}
-                                  {acc.role === 'debtor' && acc.debtorFriendName && (
-                                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                                      👤 {acc.debtorFriendName}
-                                    </span>
-                                  )}
+                                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-black/50 text-amber-300 border border-amber-500/30">
+                                    🪪 {acc.dni}
+                                  </span>
                                 </div>
-                                <span className="text-xs theme-text-muted truncate block">{acc.email}</span>
+                                <span className="text-xs theme-text-muted truncate block">
+                                  Workspace: ws_{acc.dni} • PIN: {acc.pin ? '••••' : 'Sin PIN'}
+                                </span>
                               </div>
                             </div>
 
@@ -4562,7 +5244,7 @@ end $$;`;
                                   onClick={() => handleSwitchAccount(acc)}
                                   className="px-3 py-1.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 hover:text-white border border-indigo-500/40 text-xs font-bold transition-all flex items-center gap-1"
                                 >
-                                  <span>{acc.pin ? '🔒' : '👉'}</span>
+                                  <span>👉</span>
                                   <span>Cambiar</span>
                                 </button>
                               )}
@@ -4578,16 +5260,16 @@ end $$;`;
                                   </button>
                                   <button
                                     onClick={() => handleDeleteAccount(acc)}
-                                    disabled={isCurrent || acc.id === 'acc_arnold'}
+                                    disabled={isCurrent || acc.dni === '74248477'}
                                     className={`p-1.5 rounded-lg text-xs ${
-                                      isCurrent || acc.id === 'acc_arnold'
+                                      isCurrent || acc.dni === '74248477'
                                         ? 'opacity-30 cursor-not-allowed theme-elevated'
                                         : 'theme-elevated text-rose-400 hover:bg-rose-500/20'
                                     }`}
                                     title={
                                       isCurrent
                                         ? 'No puedes borrar la sesión activa'
-                                        : acc.id === 'acc_arnold'
+                                        : acc.dni === '74248477'
                                         ? 'Cuenta de Arnold protegida'
                                         : 'Eliminar cuenta'
                                     }
@@ -4698,9 +5380,9 @@ end $$;`;
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-xs space-y-1">
-                  <div className="font-extrabold text-indigo-300">💡 Nota de Seguridad y Auditoría</div>
+                  <div className="font-extrabold text-indigo-300">💡 Nota de Seguridad Multi-tenant</div>
                   <p className="theme-text-muted leading-relaxed">
-                    Las cuentas y sus roles se guardan tanto de forma local como sincronizadas en tiempo real con <strong>Supabase</strong>. Si asignas un PIN a tu cuenta de Administrador, nadie podrá modificar los roles ni ver registros protegidos sin ingresar el código.
+                    Cada usuario registrado cuenta con su propio <strong>Workspace ID (<code className="font-mono text-amber-300">ws_[DNI]</code>)</strong>. Los registros no se mezclan y quedan protegidos por su clave PIN de 4 dígitos tanto en el almacenamiento local como en <strong>Supabase</strong>.
                   </p>
                 </div>
               </div>
@@ -4719,20 +5401,20 @@ end $$;`;
                   <div>
                     <h4 className="font-black text-base text-white">Ingresa el PIN de Seguridad</h4>
                     <p className="text-xs theme-text-muted mt-1">
-                      La cuenta <strong>{pinChallenge.targetAccount.name}</strong> está protegida con PIN.
+                      La cuenta de <strong>{pinChallenge.targetAccount.name}</strong> (DNI {pinChallenge.targetAccount.dni}) requiere su PIN de 4 dígitos.
                     </p>
                   </div>
 
                   <div>
                     <input
                       type="password"
-                      maxLength={6}
+                      maxLength={4}
                       autoFocus
                       required
                       value={pinChallenge.inputPin}
                       onChange={e => setPinChallenge({ ...pinChallenge, inputPin: e.target.value.replace(/[^0-9]/g, ''), error: '' })}
                       placeholder="••••"
-                      className="w-40 mx-auto text-center font-mono text-2xl tracking-widest p-2.5 rounded-xl bg-black/60 border border-white/20 text-amber-300 font-bold"
+                      className="w-36 mx-auto text-center font-mono text-2xl tracking-[0.4em] p-2.5 rounded-xl bg-black/60 border border-white/20 text-amber-300 font-bold"
                     />
                     {pinChallenge.error && (
                       <span className="text-xs text-rose-400 font-bold block mt-2">
@@ -4761,7 +5443,19 @@ end $$;`;
             )}
 
             {/* Modal Footer */}
-            <div className="flex justify-end pt-2 border-t theme-border">
+            <div className="flex justify-between items-center pt-2 border-t theme-border">
+              <button
+                type="button"
+                onClick={() => {
+                  onLogout();
+                  onClose();
+                }}
+                className="px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold transition-all flex items-center gap-1.5"
+              >
+                <span>🚪</span>
+                <span>Cerrar Sesión</span>
+              </button>
+
               <button
                 onClick={onClose}
                 className="px-5 py-2.5 rounded-xl theme-elevated border text-xs font-bold"
