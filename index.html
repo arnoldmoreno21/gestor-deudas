@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Gestor de deudas El Shuashe v1.0.0 | Control Financiero Inteligente</title>
+  <title>Gestor de deudas El Shuashe v1.0.1 | Control Financiero Inteligente</title>
   <link rel="icon" type="image/jpeg" href="logo.jpg" />
   <link rel="apple-touch-icon" href="logo.jpg" />
   <!-- Tailwind CSS CDN -->
@@ -585,7 +585,7 @@
             style={{
               boxShadow: `0 8px 24px -4px rgba(16, 185, 129, 0.45)`
             }}
-            title="Gestor de deudas El Shuashe v1.0.0 (Clic para alternar logo)"
+            title="Gestor de deudas El Shuashe v1.0.1 (Clic para alternar logo)"
           >
             <img
               src="logo.jpg"
@@ -678,7 +678,6 @@
       const [regPin, setRegPin] = useState('');
       const [regPinConfirm, setRegPinConfirm] = useState('');
       const [error, setError] = useState('');
-      const [showSuperadminTip, setShowSuperadminTip] = useState(true);
 
       const handleLoginSubmit = (e) => {
         e.preventDefault();
@@ -729,13 +728,6 @@
         }
       };
 
-      const handleQuickSuperadmin = () => {
-        setAuthTab('login');
-        setDni('74248477');
-        setPin('2103');
-        setError('');
-      };
-
       return (
         <div className="min-h-screen bg-[#080c14] text-white flex flex-col items-center justify-center p-4 relative overflow-hidden select-none">
           {/* Ambient Lighting Gradients */}
@@ -756,7 +748,7 @@
               </div>
               <div className="flex items-center justify-center gap-2">
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider">
-                  v1.0.0
+                  v1.0.1
                 </span>
                 <span className="text-[10px] font-bold text-slate-400">Edición Oficial</span>
               </div>
@@ -847,23 +839,6 @@
                     />
                   </div>
                 </div>
-
-                {/* Superadmin Quick Access Chip */}
-                {showSuperadminTip && (
-                  <div
-                    onClick={handleQuickSuperadmin}
-                    className="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-bold flex items-center justify-between cursor-pointer hover:bg-amber-500/20 transition-all group"
-                    title="Haz clic para auto-rellenar las credenciales de Arnold"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-base group-hover:scale-110 transition-transform">👑</span>
-                      <span>Superadmin: <strong>DNI 74248477</strong> • PIN: <strong>2103</strong></span>
-                    </div>
-                    <span className="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded-lg border border-amber-500/40">
-                      Rellenar
-                    </span>
-                  </div>
-                )}
 
                 <button
                   type="submit"
@@ -974,7 +949,7 @@
 
             {/* Footer info */}
             <div className="pt-2 border-t theme-border text-center text-[10px] theme-text-muted space-y-1">
-              <p>Gestor de deudas El Shuashe v1.0.0 • Creado por Arnold Moreno</p>
+              <p>Gestor de deudas El Shuashe v1.0.1 • Creado por Arnold Moreno</p>
               <p className="text-slate-500">
                 Sincronización en la nube Supabase Real-Time • Base de datos aislada por usuario
               </p>
@@ -2068,7 +2043,7 @@
         };
       }, [cards, purchases, subscriptions, lastMonthDebt, simulatorBoost, tc]);
 
-      // Smart Dynamic Notifications Generator (v1.0.0)
+      // Smart Dynamic Notifications Generator (v1.0.1)
       const notifications = useMemo(() => {
         const list = [];
 
@@ -2136,7 +2111,7 @@
             type: 'info',
             tab: 'tarjetas',
             badge: '✨ Gestor Listo',
-            title: '¡Bienvenido a Gestor de deudas El Shuashe v1.0.0!',
+            title: '¡Bienvenido a Gestor de deudas El Shuashe v1.0.1!',
             message: 'Tu base de datos está lista y en blanco. Pulsa "+ Añadir Tarjeta" para registrar tus tarjetas reales (CMR, BCP, BBVA, Interbank...) y empezar a controlar tus cuotas.',
             actionLabel: '+ Registrar Primera Tarjeta'
           });
@@ -2262,7 +2237,7 @@
         setProfile({
           userName: friendUserName,
           appTitle: 'Gestor de deudas El Shuashe',
-          appSubtitle: 'Control Inteligente de Tarjetas & Deudas (v1.0.0)',
+          appSubtitle: 'Control Inteligente de Tarjetas & Deudas (v1.0.1)',
           logoStyle: 'official'
         });
         setCards([
@@ -2439,7 +2414,7 @@
                         title="Haz clic para editar el título del Workspace"
                       />
                       <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
-                        v1.0.0
+                        v1.0.1
                       </span>
                     </div>
                     <input
@@ -5012,7 +4987,7 @@ end $$;`;
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-black">Gestor de Cuentas & Roles</h3>
                     <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                      Multi-tenant v1.0.0
+                      Multi-tenant v1.0.1
                     </span>
                   </div>
                   <p className="text-xs theme-text-muted">
@@ -6112,7 +6087,7 @@ end $$;`;
             <div className="flex items-center justify-between pb-3 border-b theme-border">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">Personalización Total</span>
-                <h3 className="text-xl font-black mt-0.5">🎨 Estudio de Paletas, Logo y Estilo (v1.0.0)</h3>
+                <h3 className="text-xl font-black mt-0.5">🎨 Estudio de Paletas, Logo y Estilo (v1.0.1)</h3>
               </div>
               <button onClick={onClose} className="px-3 py-1.5 rounded-xl theme-elevated font-bold text-xs">✕ Cerrar</button>
             </div>
@@ -6209,7 +6184,7 @@ end $$;`;
           const res = await Notification.requestPermission();
           setPermState(res);
           if (res === 'granted') {
-            new Notification('🔔 Gestor de deudas El Shuashe v1.0.0', {
+            new Notification('🔔 Gestor de deudas El Shuashe v1.0.1', {
               body: '¡Notificaciones activadas con éxito! Te avisaremos de tus fechas de corte y pagos.',
               icon: 'logo.jpg'
             });
@@ -6225,7 +6200,7 @@ end $$;`;
                 <span className="text-xl">🔔</span>
                 <div>
                   <h3 className="text-lg font-black text-white">Alertas y Notificaciones</h3>
-                  <p className="text-[11px] theme-text-muted">Centro de avisos inteligentes de El Shuashe v1.0.0</p>
+                  <p className="text-[11px] theme-text-muted">Centro de avisos inteligentes de El Shuashe v1.0.1</p>
                 </div>
               </div>
               <button onClick={onClose} className="p-1 rounded-xl theme-elevated hover:text-white text-slate-400">✕</button>
@@ -6297,7 +6272,7 @@ end $$;`;
             </div>
 
             <div className="pt-2 border-t theme-border flex justify-between items-center text-[10px] theme-text-muted">
-              <span>Gestor de deudas El Shuashe v1.0.0</span>
+              <span>Gestor de deudas El Shuashe v1.0.1</span>
               <button onClick={onClose} className="px-4 py-1.5 rounded-xl theme-elevated font-bold text-xs hover:text-white">
                 Cerrar
               </button>
