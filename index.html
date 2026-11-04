@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Gestor de deudas El Shuashe v1.1.0 | Control Financiero Inteligente</title>
+  <title>Gestor de deudas El Shuashe v1.2.0 | Control Financiero Inteligente</title>
   <link rel="icon" type="image/jpeg" href="logo.jpg" />
   <link rel="apple-touch-icon" href="logo.jpg" />
   <!-- Tailwind CSS CDN -->
@@ -469,6 +469,93 @@
       }
     ];
 
+    // ==========================================
+    // 2.2 PREAJUSTES DE COLORES Y DEGRADADOS DE BANCOS PERUANOS
+    // ==========================================
+    const BANK_CARD_THEMES = [
+      {
+        id: 'bcp_oro',
+        name: 'BCP Oro / Gold',
+        bank: 'BCP',
+        gradient: 'from-amber-600 via-yellow-500 to-amber-700',
+        css: 'linear-gradient(135deg, #d97706 0%, #eab308 50%, #b45309 100%)',
+        color: '#eab308',
+        chipText: '🟡 BCP Oro'
+      },
+      {
+        id: 'bcp_azul',
+        name: 'BCP Azul / Clásica',
+        bank: 'BCP',
+        gradient: 'from-blue-700 via-blue-900 to-slate-950',
+        css: 'linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 60%, #020617 100%)',
+        color: '#2563eb',
+        chipText: '🔵 BCP Azul'
+      },
+      {
+        id: 'cmr_verde',
+        name: 'CMR Falabella Verde',
+        bank: 'Banco Falabella',
+        gradient: 'from-emerald-700 via-emerald-800 to-teal-950',
+        css: 'linear-gradient(135deg, #047857 0%, #065f46 60%, #042f2e 100%)',
+        color: '#10b981',
+        chipText: '🟢 CMR Verde'
+      },
+      {
+        id: 'cmr_silver',
+        name: 'CMR Platinum / Silver',
+        bank: 'Banco Falabella',
+        gradient: 'from-slate-500 via-slate-600 to-slate-800',
+        css: 'linear-gradient(135deg, #64748b 0%, #475569 50%, #1e293b 100%)',
+        color: '#94a3b8',
+        chipText: '⚪ CMR Silver'
+      },
+      {
+        id: 'bbva_rojo',
+        name: 'BBVA / Scotiabank Rojo',
+        bank: 'BBVA',
+        gradient: 'from-rose-700 via-rose-800 to-red-950',
+        css: 'linear-gradient(135deg, #be123c 0%, #9f1239 60%, #450a0a 100%)',
+        color: '#f43f5e',
+        chipText: '🔴 BBVA Rojo'
+      },
+      {
+        id: 'interbank_verde',
+        name: 'Interbank Verde',
+        bank: 'Interbank',
+        gradient: 'from-emerald-600 via-green-600 to-teal-900',
+        css: 'linear-gradient(135deg, #059669 0%, #16a34a 50%, #134e4a 100%)',
+        color: '#16a34a',
+        chipText: '🟢 Interbank'
+      },
+      {
+        id: 'black_signature',
+        name: 'Visa Infinite / Black Signature',
+        bank: 'Signature',
+        gradient: 'from-zinc-900 via-neutral-900 to-black',
+        css: 'linear-gradient(135deg, #18181b 0%, #27272a 50%, #09090b 100%)',
+        color: '#71717a',
+        chipText: '⚫ Black / Signature'
+      },
+      {
+        id: 'diners_purple',
+        name: 'Diners Club Púrpura',
+        bank: 'Diners Club',
+        gradient: 'from-indigo-800 via-purple-900 to-slate-950',
+        css: 'linear-gradient(135deg, #3730a3 0%, #581c87 60%, #020617 100%)',
+        color: '#8b5cf6',
+        chipText: '🟣 Diners Púrpura'
+      },
+      {
+        id: 'ripley_orange',
+        name: 'Tarjeta Oh! / Ripley Naranja',
+        bank: 'Tarjeta Oh!',
+        gradient: 'from-amber-600 via-orange-600 to-red-800',
+        css: 'linear-gradient(135deg, #d97706 0%, #ea580c 50%, #991b1b 100%)',
+        color: '#ea580c',
+        chipText: '🟠 Ripley / Oh!'
+      }
+    ];
+
     const DEFAULT_PURCHASES = [
       {
         id: 'p_cmr_1',
@@ -644,7 +731,7 @@
             style={{
               boxShadow: `0 8px 24px -4px rgba(16, 185, 129, 0.45)`
             }}
-            title="Gestor de deudas El Shuashe v1.1.0 (Clic para alternar logo)"
+            title="Gestor de deudas El Shuashe v1.2.0 (Clic para alternar logo)"
           >
             <img
               src="logo.jpg"
@@ -807,7 +894,7 @@
               </div>
               <div className="flex items-center justify-center gap-2">
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider">
-                  v1.1.0
+                  v1.2.0
                 </span>
                 <span className="text-[10px] font-bold text-slate-400">Edición Oficial</span>
               </div>
@@ -1008,7 +1095,7 @@
 
             {/* Footer info */}
             <div className="pt-2 border-t theme-border text-center text-[10px] theme-text-muted space-y-1">
-              <p>Gestor de deudas El Shuashe v1.1.0 • Creado por Arnold Moreno</p>
+              <p>Gestor de deudas El Shuashe v1.2.0 • Creado por Arnold Moreno</p>
               <p className="text-slate-500">
                 Sincronización en la nube Supabase Real-Time • Base de datos aislada por usuario
               </p>
@@ -1093,15 +1180,20 @@
         return typeof ws?.exchangeRate === 'number' ? ws.exchangeRate : 3.78;
       });
 
-      // START CLEAN & EMPTY AS USER REQUESTED:
-      // "y que los nuevos tengan la base de datos vacia incluso la mia y yo pongo los datos nuevos, de pronto"
+      // START CLEAN & EMPTY AS USER REQUESTED, BUT PRESERVE IF SAVED:
       const [cards, setCards] = useState(() => {
         const ws = loadLocal(userWorkspaceKey, null);
+        if (Array.isArray(ws?.cards) && ws.cards.length > 0) return ws.cards;
+        const v7Cards = loadLocal('dc_v7_cards', null);
+        if (Array.isArray(v7Cards) && v7Cards.length > 0 && currentSession?.dni === '74248477') return v7Cards;
         return Array.isArray(ws?.cards) ? ws.cards : [];
       });
 
       const [purchases, setPurchases] = useState(() => {
         const ws = loadLocal(userWorkspaceKey, null);
+        if (Array.isArray(ws?.purchases) && ws.purchases.length > 0) return ws.purchases;
+        const v7Purchases = loadLocal('dc_v7_purchases', null);
+        if (Array.isArray(v7Purchases) && v7Purchases.length > 0 && currentSession?.dni === '74248477') return v7Purchases;
         return Array.isArray(ws?.purchases) ? ws.purchases : [];
       });
 
@@ -1167,6 +1259,7 @@
       const [showTemplateModal, setShowTemplateModal] = useState(false);
       const [showCloudDatabaseModal, setShowCloudDatabaseModal] = useState(false);
       const [showAccountsManager, setShowAccountsManager] = useState(false);
+      const [showProfileModal, setShowProfileModal] = useState(false);
 
       const [rolePermissions, setRolePermissions] = useState(() => {
         const stored = loadLocal('dc_v9_role_permissions', null);
@@ -1312,7 +1405,9 @@
         triggerToast('🚪 Sesión cerrada correctamente');
       };
 
-      const workspaceId = currentSession ? (currentSession.workspaceId || ('ws_' + currentSession.dni)) : 'ws_default';
+      const [customWorkspaceId, setCustomWorkspaceId] = useState(() => loadLocal('dc_v9_workspace_id', ''));
+      const workspaceId = customWorkspaceId || (currentSession ? (currentSession.workspaceId || ('ws_' + currentSession.dni)) : 'ws_default');
+      const setWorkspaceId = (ws) => setCustomWorkspaceId(ws);
       const [cloudProvider, setCloudProvider] = useState(() =>
         loadLocal('dc_v9_cloud_provider', 'supabase')
       );
@@ -1695,6 +1790,23 @@
       // 4) Instant Auto-Save to BOTH LocalStorage AND Real-Time Cloud DB on every single edit (<250ms)
       useEffect(() => {
         try {
+          // CRITICAL PERSISTENCE: Save to active user workspace so cards/purchases never disappear on refresh
+          const activeDNI = currentSession?.dni || '74248477';
+          const wsKey = `dc_ws_${activeDNI}_data`;
+          const wsData = {
+            profile,
+            themeKey,
+            customColors,
+            exchangeRate,
+            cards,
+            purchases,
+            subscriptions,
+            friends,
+            lastMonthDebt,
+            updatedAt: Date.now()
+          };
+          localStorage.setItem(wsKey, JSON.stringify(wsData));
+
           localStorage.setItem('dc_v7_profile', JSON.stringify(profile));
           localStorage.setItem('dc_v7_theme_key', JSON.stringify(themeKey));
           localStorage.setItem('dc_v7_custom_colors', JSON.stringify(customColors));
@@ -1916,8 +2028,20 @@
             p.debtors.forEach(d => {
               const shareNative = Number(d.totalShare) || 0;
               purchaseThirdPartyTotalNative += shareNative;
-              const dMonthlyPEN = toPEN(shareNative / installments, cur);
-              const dRemainingPEN = dMonthlyPEN * remainingQuotas;
+
+              let dMonthlyPEN = 0;
+              let dRemainingPEN = 0;
+
+              if (d.installmentPlan === 'single_current') {
+                dMonthlyPEN = isCompleted || d.paidThisMonth ? 0 : toPEN(shareNative, cur);
+                dRemainingPEN = d.paidThisMonth ? 0 : toPEN(shareNative, cur);
+              } else if (d.installmentPlan === 'single_next') {
+                dMonthlyPEN = current === 1 ? 0 : (d.paidThisMonth ? 0 : toPEN(shareNative, cur));
+                dRemainingPEN = d.paidThisMonth ? 0 : toPEN(shareNative, cur);
+              } else {
+                dMonthlyPEN = toPEN(shareNative / installments, cur);
+                dRemainingPEN = dMonthlyPEN * remainingQuotas;
+              }
 
               if (!isCompleted) {
                 purchaseThirdPartyMonthlyPEN += dMonthlyPEN;
@@ -2109,7 +2233,58 @@
         };
       }, [cards, purchases, subscriptions, lastMonthDebt, simulatorBoost, tc]);
 
-      // Smart Dynamic Notifications Generator (v1.1.0)
+      // Financial status bar aggregations (Deuda vs Línea y Próximo Vencimiento)
+      const totalCreditLinePEN = useMemo(() => {
+        return cards.reduce((sum, c) => {
+          const cur = c.currency || 'PEN';
+          const limitPEN = cur === 'USD' ? ((Number(c.limit) || 0) * Number(exchangeRate || 3.78)) : (Number(c.limit) || 0);
+          return sum + limitPEN;
+        }, 0);
+      }, [cards, exchangeRate]);
+
+      const creditLineUtilizationPct = useMemo(() => {
+        if (totalCreditLinePEN <= 0) return 0;
+        return Math.min(100, (metrics.totalGlobalDebt / totalCreditLinePEN) * 100);
+      }, [metrics.totalGlobalDebt, totalCreditLinePEN]);
+
+      const upcomingPaymentInfo = useMemo(() => {
+        if (!cards || cards.length === 0) return null;
+        const cardsWithBills = cards.map(c => {
+          const st = metrics.byCard[c.id];
+          const bill = st ? st.monthlyBillPEN : 0;
+          return {
+            cardId: c.id,
+            cardName: c.name,
+            cardBank: c.bank,
+            cardColor: c.color,
+            bill,
+            dueDay: parseInt(c.dueDay) || 5,
+            dueLabel: c.dueMonthLabel || `Día ${c.dueDay || 5}`
+          };
+        });
+
+        const activeWithDebts = cardsWithBills.filter(item => item.bill > 0);
+        const targetList = activeWithDebts.length > 0 ? activeWithDebts : cardsWithBills;
+        if (targetList.length === 0) return null;
+
+        const today = new Date().getDate();
+        const sorted = [...targetList].sort((a, b) => {
+          const diffA = (a.dueDay - today + 31) % 31;
+          const diffB = (b.dueDay - today + 31) % 31;
+          return diffA - diffB;
+        });
+
+        const best = sorted[0];
+        const daysDiff = (best.dueDay - today + 31) % 31;
+        const daysText = daysDiff === 0 ? '¡Vence Hoy!' : daysDiff === 1 ? 'Vence Mañana' : `En ${daysDiff} días`;
+
+        return {
+          ...best,
+          daysText
+        };
+      }, [cards, metrics]);
+
+      // Smart Dynamic Notifications Generator (v1.2.0)
       const notifications = useMemo(() => {
         const list = [];
 
@@ -2177,7 +2352,7 @@
             type: 'info',
             tab: 'tarjetas',
             badge: '✨ Gestor Listo',
-            title: '¡Bienvenido a Gestor de deudas El Shuashe v1.1.0!',
+            title: '¡Bienvenido a Gestor de deudas El Shuashe v1.2.0!',
             message: 'Tu base de datos está lista y en blanco. Pulsa "+ Añadir Tarjeta" para registrar tus tarjetas reales (CMR, BCP, BBVA, Interbank...) y empezar a controlar tus cuotas.',
             actionLabel: '+ Registrar Primera Tarjeta'
           });
@@ -2192,7 +2367,15 @@
           triggerToast('🔒 Tu rol actual no tiene permisos para modificar tarjetas');
           return;
         }
-        setCards(prev => prev.map(c => c.id === updated.id ? updated : c));
+        setCards(prev => {
+          const next = prev.map(c => c.id === updated.id ? updated : c);
+          try {
+            const activeDNI = currentSession?.dni || '74248477';
+            const ws = loadLocal(`dc_ws_${activeDNI}_data`, {}) || {};
+            localStorage.setItem(`dc_ws_${activeDNI}_data`, JSON.stringify({ ...ws, cards: next, updatedAt: Date.now() }));
+          } catch (e) {}
+          return next;
+        });
         triggerToast(`Tarjeta ${updated.name} actualizada`);
       };
 
@@ -2201,9 +2384,24 @@
           triggerToast('🔒 Tu rol actual no tiene permisos para crear tarjetas');
           return;
         }
-        setCards(prev => [...prev, { ...newCard, id: 'card_' + Date.now() }]);
+        const created = {
+          ...newCard,
+          id: 'card_' + Date.now(),
+          color: newCard.color || '#eab308',
+          gradient: newCard.gradient || 'from-amber-600 via-yellow-500 to-amber-700',
+          customCss: newCard.customCss || ''
+        };
+        setCards(prev => {
+          const next = [...prev, created];
+          try {
+            const activeDNI = currentSession?.dni || '74248477';
+            const ws = loadLocal(`dc_ws_${activeDNI}_data`, {}) || {};
+            localStorage.setItem(`dc_ws_${activeDNI}_data`, JSON.stringify({ ...ws, cards: next, updatedAt: Date.now() }));
+          } catch (e) {}
+          return next;
+        });
         setIsAddingCard(false);
-        triggerToast(`Tarjeta ${newCard.name} agregada`);
+        triggerToast(`Tarjeta ${newCard.name} agregada con éxito`);
       };
 
       const handleDeleteCard = (id) => {
@@ -2211,7 +2409,15 @@
           triggerToast('🔒 Solo el Administrador Total puede eliminar tarjetas');
           return;
         }
-        setCards(prev => prev.filter(c => c.id !== id));
+        setCards(prev => {
+          const next = prev.filter(c => c.id !== id);
+          try {
+            const activeDNI = currentSession?.dni || '74248477';
+            const ws = loadLocal(`dc_ws_${activeDNI}_data`, {}) || {};
+            localStorage.setItem(`dc_ws_${activeDNI}_data`, JSON.stringify({ ...ws, cards: next, updatedAt: Date.now() }));
+          } catch (e) {}
+          return next;
+        });
         setPurchases(prev => prev.filter(p => p.cardId !== id));
         setSubscriptions(prev => prev.filter(s => s.cardId !== id));
         setSelectedCardId(null);
@@ -2311,7 +2517,7 @@
         setProfile({
           userName: friendUserName,
           appTitle: 'Gestor de deudas El Shuashe',
-          appSubtitle: 'Control Inteligente de Tarjetas & Deudas (v1.1.0)',
+          appSubtitle: 'Control Inteligente de Tarjetas & Deudas (v1.2.0)',
           logoStyle: 'official'
         });
         setCards([
@@ -2492,7 +2698,7 @@
                         title="Haz clic para editar el título del Workspace"
                       />
                       <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
-                        v1.1.0
+                        v1.2.0
                       </span>
                     </div>
                     <input
@@ -2580,85 +2786,50 @@
               </nav>
             </div>
 
-            {/* Bottom Controls + Permanent Arnold Moreno Credits */}
-            <div className="p-3.5 border-t theme-border space-y-2">
+            {/* Bottom Controls: Nuevo Módulo Central "Mi Perfil & Ajustes" */}
+            <div className="p-3.5 border-t theme-border space-y-2.5">
               <button
-                onClick={() => setShowCloudDatabaseModal(true)}
-                className={`w-full py-2.5 px-3 rounded-xl text-xs font-extrabold text-white shadow-lg flex items-center justify-between transition-all ${
-                  cloudStatus === 'connected'
-                    ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500'
-                    : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500'
-                }`}
+                onClick={() => setShowProfileModal(true)}
+                className="w-full p-3 rounded-2xl theme-surface border hover:border-indigo-500/50 flex items-center justify-between text-left transition-all group shadow-md"
+                title="Abrir Mi Perfil, Temas de Color, Base de Datos, Roles y Ajustes"
               >
-                <span>⚡ Base de Datos Cloud (Supabase)</span>
-                <span className="text-[10px] bg-black/30 px-2 py-0.5 rounded-full">
-                  {cloudStatus === 'connected' ? '🟢 Tiempo Real' : 'Configurar 1 vez'}
-                </span>
-              </button>
-
-              <button
-                onClick={() => setShowAccountsManager(true)}
-                className="w-full py-2 px-3 rounded-xl text-xs font-bold theme-elevated border hover:border-amber-500/40 flex items-center justify-between"
-              >
-                <span>👥 Gestor de Cuentas & Roles</span>
-                <span className="text-[10px] bg-black/25 px-2 py-0.5 rounded-full font-mono text-amber-300">
-                  {accounts.length} Cuentas
-                </span>
-              </button>
-
-              <button
-                onClick={() => setShowThemeStudio(true)}
-                className="w-full py-2 px-3 rounded-xl text-xs font-bold theme-elevated border hover:border-indigo-500/40 flex items-center justify-between"
-              >
-                <span>🎨 Estudio de Color (9 Temas)</span>
-                <span className="text-[10px] bg-black/25 px-2 py-0.5 rounded-full">Editar</span>
-              </button>
-
-              <div className="grid grid-cols-2 gap-1.5">
-                <button
-                  onClick={() => setShowFriendsManager(true)}
-                  className="py-2 px-2.5 rounded-xl text-[11px] font-bold theme-elevated border hover:border-emerald-500/40 flex items-center justify-between"
-                >
-                  <span>👤 Amigos</span>
-                  <span className="px-1.5 py-0.5 rounded-full bg-black/30 text-[10px]">{friends.length}</span>
-                </button>
-                <button
-                  onClick={() => setShowTemplateModal(true)}
-                  className="py-2 px-2.5 rounded-xl text-[11px] font-bold theme-elevated border hover:border-indigo-500/40 text-indigo-300 flex items-center justify-center gap-1"
-                >
-                  ✨ Modo Plantilla
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 gap-1.5">
-                <button
-                  onClick={handleExportJSON}
-                  className="py-1.5 px-2 rounded-xl text-[11px] font-semibold theme-elevated border hover:opacity-90"
-                >
-                  ⬇️ Exportar JSON
-                </button>
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="py-1.5 px-2 rounded-xl text-[11px] font-semibold theme-elevated border hover:opacity-90"
-                >
-                  ⬆️ Importar JSON
-                </button>
-              </div>
-
-              {/* Cerrar Sesión Sidebar Button */}
-              <button
-                onClick={handleLogout}
-                className="w-full mt-2 py-2 px-3 rounded-xl text-xs font-bold bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center justify-between transition-all shadow"
-                title="Cerrar la sesión de este usuario"
-              >
-                <div className="flex items-center gap-2">
-                  <span>🚪</span>
-                  <span>Cerrar Sesión</span>
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center justify-center font-bold text-lg shadow-inner shrink-0">
+                    {currentAccount.avatar || '👤'}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs font-black group-hover:text-indigo-400 transition-colors flex items-center gap-1.5 truncate">
+                      <span className="truncate">{currentAccount.name}</span>
+                      <span className={`text-[9px] font-black uppercase px-1.5 py-0.2 rounded shrink-0 ${permissions.roleMeta.bgColor} ${permissions.roleMeta.textColor}`}>
+                        {permissions.roleMeta.badge}
+                      </span>
+                    </div>
+                    <div className="text-[10px] theme-text-muted mt-0.5 flex items-center gap-1">
+                      <span>DNI {currentAccount.dni}</span>
+                      <span>•</span>
+                      <span className="text-indigo-400 font-bold">Perfil & Ajustes ⚙️</span>
+                    </div>
+                  </div>
                 </div>
-                <span className="text-[10px] font-mono opacity-80 bg-black/40 px-2 py-0.5 rounded-full text-rose-200">
-                  DNI {currentSession.dni}
-                </span>
+                <span className="text-sm theme-text-muted group-hover:translate-x-1 transition-transform shrink-0">⚙️</span>
               </button>
+
+              {/* Quick Action Cloud Status Pill */}
+              <div
+                onClick={() => setShowProfileModal(true)}
+                className={`w-full py-2 px-3 rounded-xl text-[11px] font-bold border flex items-center justify-between cursor-pointer transition-all ${
+                  cloudStatus === 'connected'
+                    ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20'
+                    : 'bg-black/30 theme-text-muted border-white/10 hover:border-white/20'
+                }`}
+                title="Toca para gestionar la conexión en la nube o respaldos"
+              >
+                <span className="flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full ${cloudStatus === 'connected' ? 'bg-emerald-400 animate-ping' : 'bg-slate-500'}`} />
+                  <span>{cloudStatus === 'connected' ? 'Nube en Tiempo Real' : 'Guardado Local Seguro'}</span>
+                </span>
+                <span className="text-[10px] opacity-75 font-mono-num">{lastSavedTime}</span>
+              </div>
 
               {/* PERMANENT CREATOR CREDITS */}
               <div className="pt-2.5 mt-1 border-t theme-border text-center space-y-0.5">
@@ -2712,9 +2883,9 @@
 
                   {/* Active Account Pill Button */}
                   <button
-                    onClick={() => setShowAccountsManager(true)}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border border-white/10 bg-black/40 hover:bg-black/60 transition-all text-white"
-                    title="Cambiar usuario o gestionar roles de acceso"
+                    onClick={() => setShowProfileModal(true)}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border border-white/10 bg-black/40 hover:bg-black/60 transition-all text-white shadow-sm"
+                    title="Mi Perfil, Paleta de Colores, Base de Datos y Roles"
                   >
                     <span>{currentAccount.avatar || '👤'}</span>
                     <span className="max-w-[120px] truncate">{currentAccount.name}</span>
@@ -2817,19 +2988,12 @@
                 </button>
 
                 <button
-                  onClick={() => setShowCloudDatabaseModal(true)}
-                  className="p-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold flex items-center gap-1"
-                  title="Base de Datos en Tiempo Real para Vercel"
+                  onClick={() => setShowProfileModal(true)}
+                  className="p-2 rounded-xl theme-elevated border text-xs font-bold flex items-center gap-1.5 hover:border-indigo-500/50"
+                  title="Abrir Mi Perfil, Paleta de Colores, Base de Datos y Ajustes"
                 >
-                  ⚡ <span className="hidden lg:inline">Cloud DB</span>
-                </button>
-
-                <button
-                  onClick={() => setShowThemeStudio(true)}
-                  className="p-2 rounded-xl theme-elevated border text-xs font-bold flex items-center gap-1"
-                  title="Estudio de Temas y Colores"
-                >
-                  🎨
+                  <span>⚙️</span>
+                  <span className="hidden sm:inline">Perfil</span>
                 </button>
 
                 <button
@@ -2846,6 +3010,85 @@
                 </button>
               </div>
             </header>
+
+            {/* TOP EXECUTIVE FINANCIAL STATUS BAR (v1.2.0) */}
+            <div className="bg-black/35 border-b theme-border px-4 py-2.5 md:px-6 md:py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs z-10 shrink-0">
+              {/* Progress Bar & Total Debt vs Credit Line */}
+              <div className="flex-1 min-w-[260px] max-w-xl">
+                <div className="flex justify-between items-baseline mb-1">
+                  <span className="font-extrabold text-[11px] uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                    <span>📊 Deuda Global:</span>
+                    <span className="text-white font-mono-num font-black">{formatSoles(metrics.totalGlobalDebt)}</span>
+                    <span className="theme-text-muted font-normal">/ Línea {formatSoles(totalCreditLinePEN)}</span>
+                  </span>
+                  <span className={`text-[10px] font-black px-1.5 py-0.2 rounded font-mono-num ${
+                    creditLineUtilizationPct > 75 ? 'bg-rose-500/20 text-rose-300' :
+                    creditLineUtilizationPct > 40 ? 'bg-amber-500/20 text-amber-300' :
+                    'bg-emerald-500/20 text-emerald-300'
+                  }`}>
+                    {creditLineUtilizationPct.toFixed(1)}% uso
+                  </span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-black/60 overflow-hidden border border-white/10">
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${Math.max(2, Math.min(100, creditLineUtilizationPct))}%`,
+                      backgroundColor: creditLineUtilizationPct > 75 ? '#f43f5e' : creditLineUtilizationPct > 40 ? '#f59e0b' : '#10b981'
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Upcoming Nearest Due Date Card & Billing Info */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {upcomingPaymentInfo ? (
+                  <div
+                    onClick={() => {
+                      if (upcomingPaymentInfo.cardId) setSelectedCardId(upcomingPaymentInfo.cardId);
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 flex items-center gap-2 cursor-pointer hover:bg-amber-500/20 transition-all shadow-sm"
+                    title="Toca para inspeccionar la tarjeta con vencimiento más cercano"
+                  >
+                    <span className="text-sm">📅</span>
+                    <div className="leading-tight">
+                      <div className="font-black text-[11px] flex items-center gap-1">
+                        <span>{upcomingPaymentInfo.cardName}</span>
+                        <span className="text-[10px] opacity-80">({upcomingPaymentInfo.dueLabel})</span>
+                      </div>
+                      <div className="text-[10px] text-amber-200/90 font-mono-num">
+                        {upcomingPaymentInfo.bill > 0 ? (
+                          <>Factura Mes: <strong>{formatSoles(upcomingPaymentInfo.bill)}</strong> • <span className="font-bold underline">{upcomingPaymentInfo.daysText}</span></>
+                        ) : (
+                          <span>Al día en esta tarjeta</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center gap-1.5">
+                    <span>✅</span>
+                    <span className="text-[11px] font-bold">Sin pagos pendientes inmediatos</span>
+                  </div>
+                )}
+
+                {/* Monthly Bill Badge */}
+                <div className="px-3 py-1.5 rounded-xl theme-elevated border flex items-center gap-2">
+                  <span className="text-xs">💳</span>
+                  <div className="leading-tight">
+                    <div className="text-[10px] theme-text-muted">A Facturar Este Mes:</div>
+                    <div className="text-xs font-black text-white font-mono-num">
+                      {formatSoles(metrics.totalMonthlyBill)}
+                      {metrics.monthlyReceivablesTotal > 0 && (
+                        <span className="text-emerald-400 font-normal text-[10px] ml-1">
+                          (Amigos pagan {formatSoles(metrics.monthlyReceivablesTotal)})
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Main Scrollable Content */}
             <main className="flex-1 overflow-y-auto p-4 pb-28 md:p-7 md:pb-12 space-y-6">
@@ -3036,12 +3279,51 @@
               <MobileNavBtn active={activeTab === 'compras'} onClick={() => setActiveTab('compras')} icon="🛍️" label="Cuotas" />
               <MobileNavBtn active={activeTab === 'suscripciones'} onClick={() => setActiveTab('suscripciones')} icon="🔄" label="Suscrip." />
               <MobileNavBtn active={activeTab === 'cuentas'} onClick={() => setActiveTab('cuentas')} icon="👥" label="Cobrar" />
+              <MobileNavBtn active={showProfileModal} onClick={() => setShowProfileModal(true)} icon="👤" label="Perfil" />
             </nav>
           </div>
 
           {/* ========================================== */}
           {/* MODALS & DRAWERS                           */}
           {/* ========================================== */}
+          {showProfileModal && (
+            <ProfileSettingsModal
+              profile={profile}
+              setProfile={setProfile}
+              themeKey={themeKey}
+              setThemeKey={setThemeKey}
+              customColors={customColors}
+              setCustomColors={setCustomColors}
+              currentSession={currentSession}
+              currentAccount={currentAccount}
+              permissions={permissions}
+              accounts={accounts}
+              friends={friends}
+              cloudStatus={cloudStatus}
+              workspaceId={workspaceId}
+              setWorkspaceId={setWorkspaceId}
+              supabaseUrl={supabaseUrl}
+              setSupabaseUrl={setSupabaseUrl}
+              supabaseAnonKey={supabaseAnonKey}
+              setSupabaseAnonKey={setSupabaseAnonKey}
+              cloudProvider={cloudProvider}
+              setCloudProvider={setCloudProvider}
+              firebaseConfigStr={firebaseConfigStr}
+              setFirebaseConfigStr={setFirebaseConfigStr}
+              restCloudUrl={restCloudUrl}
+              setRestCloudUrl={setRestCloudUrl}
+              onDownloadVercelReadyHTML={handleDownloadVercelReadyHTML}
+              onOpenAccountsManager={() => { setShowProfileModal(false); setShowAccountsManager(true); }}
+              onOpenFriendsManager={() => { setShowProfileModal(false); setShowFriendsManager(true); }}
+              onOpenTemplateModal={() => { setShowProfileModal(false); setShowTemplateModal(true); }}
+              onExportJSON={handleExportJSON}
+              onImportJSON={() => fileInputRef.current?.click()}
+              onLogout={handleLogout}
+              triggerToast={triggerToast}
+              onClose={() => setShowProfileModal(false)}
+            />
+          )}
+
           {showCloudDatabaseModal && (
             <CloudDatabaseSetupModal
               workspaceId={workspaceId}
@@ -4086,7 +4368,8 @@ end $$;`;
                   <div
                     key={card.id}
                     onClick={() => onSelectCard(card.id)}
-                    className={`rounded-3xl p-6 text-white bg-gradient-to-br ${card.gradient || 'from-slate-800 to-slate-950'} border border-white/15 shadow-xl cursor-pointer hover:scale-[1.01] transition-all`}
+                    style={{ background: card.customCss || undefined }}
+                    className={`rounded-3xl p-6 text-white ${card.customCss ? '' : (card.gradient ? ('bg-gradient-to-br ' + card.gradient) : 'bg-gradient-to-br from-slate-800 to-slate-950')} border border-white/15 shadow-xl cursor-pointer hover:scale-[1.01] transition-all`}
                   >
                     <div className="flex justify-between items-start">
                       <div>
@@ -5136,7 +5419,7 @@ end $$;`;
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-black">Gestor de Cuentas & Roles</h3>
                     <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                      Multi-tenant v1.1.0
+                      Multi-tenant v1.2.0
                     </span>
                   </div>
                   <p className="text-xs theme-text-muted">
@@ -5797,9 +6080,13 @@ end $$;`;
           ...form,
           limit: parseFloat(form.limit) || 0,
           closingDay: parseInt(form.closingDay) || 1,
+          dueDay: parseInt(form.dueDay) || 5,
           desgravamenValue: parseFloat(form.desgravamenValue) || 0,
           desgravamenCap: parseFloat(form.desgravamenCap) || 0,
-          membershipCost: parseFloat(form.membershipCost) || 0
+          membershipCost: parseFloat(form.membershipCost) || 0,
+          color: form.color || '#eab308',
+          gradient: form.gradient || 'from-amber-600 via-yellow-500 to-amber-700',
+          customCss: form.customCss || ''
         });
         setEditingConfig(false);
       };
@@ -5914,6 +6201,77 @@ end $$;`;
                         className="w-full p-2 rounded-lg bg-black/50 border theme-border"
                       />
                     </div>
+                    {/* Selector de Color y Degradado de Bancos Peruanos */}
+                    <div className="col-span-full space-y-2 pt-2 border-t theme-border">
+                      <label className="block font-bold text-xs theme-text-muted">
+                        🎨 Color & Degradado (Elige el banco para que coincida exactamente):
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {BANK_CARD_THEMES.map(theme => (
+                          <button
+                            key={theme.id}
+                            type="button"
+                            onClick={() => {
+                              setForm({
+                                ...form,
+                                color: theme.color,
+                                gradient: theme.gradient,
+                                customCss: theme.css,
+                                bank: form.bank || theme.bank
+                              });
+                            }}
+                            className={`p-2 rounded-xl border text-left flex items-center gap-2 transition-all ${
+                              form.customCss === theme.css || form.gradient === theme.gradient
+                                ? 'border-amber-400 bg-amber-500/20 ring-1 ring-amber-400'
+                                : 'border-white/10 bg-black/40 hover:bg-black/60'
+                            }`}
+                          >
+                            <span className="w-3.5 h-3.5 rounded-full shrink-0 shadow" style={{ background: theme.css || theme.color }} />
+                            <span className="text-[11px] font-bold text-white truncate">{theme.chipText}</span>
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-1">
+                        <span className="text-[11px] theme-text-muted">Color HEX exacto:</span>
+                        <input
+                          type="color"
+                          value={form.color || '#eab308'}
+                          onChange={e => {
+                            const hex = e.target.value;
+                            setForm({
+                              ...form,
+                              color: hex,
+                              gradient: '',
+                              customCss: `linear-gradient(135deg, ${hex} 0%, #090d16 100%)`
+                            });
+                          }}
+                          className="w-7 h-7 rounded cursor-pointer bg-transparent border border-white/20 p-0.5"
+                        />
+                        <span className="text-[10px] font-mono theme-text-muted">{form.color}</span>
+                      </div>
+
+                      {/* Live Card Mini Preview */}
+                      <div
+                        className="p-3.5 rounded-2xl text-white shadow-lg border border-white/15 transition-all mt-2"
+                        style={{ background: form.customCss || undefined }}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <span className="text-[9px] uppercase tracking-widest text-white/70 font-bold">
+                              {form.bank || 'BANCO'} • {form.currency}
+                            </span>
+                            <h4 className="text-base font-black">{form.name || 'Tarjeta'}</h4>
+                          </div>
+                          <span className="text-sm">💳</span>
+                        </div>
+                        <div className="mt-2 flex justify-between items-end text-[10px] text-white/80">
+                          <div>Línea: {form.currency === 'USD' ? '$' : 'S/'} {Number(form.limit || 0).toLocaleString()}</div>
+                          <div>Vence: {form.dueMonthLabel || '05 Mensual'}</div>
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="col-span-full flex justify-end pt-2">
                       <button type="submit" className="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold">Guardar Cambios</button>
                     </div>
@@ -5979,81 +6337,124 @@ end $$;`;
     }
 
     // ==========================================
-    // 14. PURCHASE FORM MODAL (100% MIO, 50/50, 1/N, 100% AMIGO)
+    // 14. PURCHASE FORM MODAL WITH SMART MANUAL SPLIT & INSTALLMENT PLANNING (v1.2.0)
     // ==========================================
     function PurchaseFormModal({ initialData, cards, friends, onClose, onSave, onDelete }) {
-      const [form, setForm] = useState({
-        ...initialData,
-        currency: initialData.currency || 'PEN',
-        totalAmount: initialData.totalAmount || '',
-        currentInstallment: initialData.currentInstallment || 1,
-        totalInstallments: initialData.totalInstallments || 1,
-        splitMode: initialData.splitMode || 'own',
-        equalPartsCount: initialData.equalPartsCount || 2,
-        debtors: initialData.debtors || []
+      const [description, setDescription] = useState(initialData.description || '');
+      const [currency, setCurrency] = useState(initialData.currency || 'PEN');
+      const [totalAmount, setTotalAmount] = useState(initialData.totalAmount ? initialData.totalAmount.toString() : '');
+      const [cardId, setCardId] = useState(initialData.cardId || (cards[0]?.id || 'cmr'));
+      const [currentInstallment, setCurrentInstallment] = useState(initialData.currentInstallment || 1);
+      const [totalInstallments, setTotalInstallments] = useState(initialData.totalInstallments || 1);
+
+      const initialDebtor = initialData.debtors && initialData.debtors[0];
+      const [splitMode, setSplitMode] = useState(() => {
+        if (!initialDebtor) return 'own';
+        if (initialData.splitMode) return initialData.splitMode;
+        const tot = Number(initialData.totalAmount) || 0;
+        if (initialDebtor.totalShare >= tot && tot > 0) return 'friend100';
+        if (Math.abs(initialDebtor.totalShare - tot / 2) < 0.05) return 'split50';
+        return 'custom_manual';
       });
 
+      const [friendName, setFriendName] = useState(initialDebtor?.name || (friends[0] || ''));
       const [newFriendInput, setNewFriendInput] = useState('');
-      const [customShareInput, setCustomShareInput] = useState('');
+      const [friendShare, setFriendShare] = useState(() => {
+        if (initialDebtor) return initialDebtor.totalShare.toString();
+        return '';
+      });
 
-      const applyPreset = (mode, customFriendName) => {
-        const total = parseFloat(form.totalAmount) || 0;
-        const targetFriend = customFriendName || newFriendInput.trim() || friends[0] || 'Amigo';
+      const [friendInstallmentPlan, setFriendInstallmentPlan] = useState(
+        initialDebtor?.installmentPlan || 'installment'
+      );
 
+      const numTotal = Math.max(0, parseFloat(totalAmount) || 0);
+      const numFriendShare = Math.max(0, parseFloat(friendShare) || 0);
+      const numMyShare = Math.max(0, numTotal - numFriendShare);
+
+      const isExceeded = numFriendShare > numTotal && numTotal > 0;
+      const myPct = numTotal > 0 ? Math.min(100, Math.max(0, (numMyShare / numTotal) * 100)) : 100;
+      const friendPct = numTotal > 0 ? Math.min(100, Math.max(0, (numFriendShare / numTotal) * 100)) : 0;
+
+      const handleSplitModeChange = (mode) => {
+        setSplitMode(mode);
         if (mode === 'own') {
-          setForm({ ...form, splitMode: 'own', debtors: [] });
+          setFriendShare('0');
         } else if (mode === 'split50') {
-          setForm({
-            ...form,
-            splitMode: 'split50',
-            debtors: [{ id: 'd_' + Date.now(), name: targetFriend, totalShare: Number((total / 2).toFixed(2)), paidThisMonth: false }]
-          });
-        } else if (mode === 'equalN') {
-          const n = Math.max(2, parseInt(form.equalPartsCount) || 2);
-          const friendsShare = total * ((n - 1) / n);
-          setForm({
-            ...form,
-            splitMode: 'equalN',
-            debtors: [{ id: 'd_' + Date.now(), name: targetFriend, totalShare: Number(friendsShare.toFixed(2)), paidThisMonth: false }]
-          });
+          setFriendShare((numTotal / 2).toFixed(2));
         } else if (mode === 'friend100') {
-          setForm({
-            ...form,
-            splitMode: 'friend100',
-            debtors: [{ id: 'd_' + Date.now(), name: targetFriend, totalShare: Number(total.toFixed(2)), paidThisMonth: false }]
-          });
+          setFriendShare(numTotal.toFixed(2));
+        } else if (mode === 'custom_manual') {
+          if (!friendShare || parseFloat(friendShare) === 0) {
+            setFriendShare((numTotal * 0.2).toFixed(2));
+          }
         }
       };
 
-      const addCustomDebtor = () => {
-        const clean = newFriendInput.trim();
-        if (!clean) return;
-        const total = parseFloat(form.totalAmount) || 0;
-        const share = parseFloat(customShareInput) || (total / 2);
-        setForm({
-          ...form,
-          debtors: [...form.debtors, { id: 'd_' + Date.now(), name: clean, totalShare: Number(share.toFixed(2)), paidThisMonth: false }]
-        });
-        setNewFriendInput('');
-        setCustomShareInput('');
+      const handleFriendShareChange = (val) => {
+        setFriendShare(val);
+      };
+
+      const handleMyShareChange = (val) => {
+        const myVal = parseFloat(val) || 0;
+        const calculatedFriend = Math.max(0, numTotal - myVal);
+        setFriendShare(calculatedFriend.toFixed(2));
       };
 
       const handleSubmit = (e) => {
         e.preventDefault();
+        if (numTotal <= 0) {
+          alert('Por favor ingresa un monto total de compra mayor a 0');
+          return;
+        }
+        if (splitMode !== 'own' && numFriendShare > numTotal) {
+          alert('El monto del amigo no puede superar el monto total de la compra');
+          return;
+        }
+
+        const effectiveFriend = newFriendInput.trim() || friendName.trim() || 'Amigo';
+        let debtors = [];
+        if (splitMode !== 'own' && numFriendShare > 0) {
+          debtors = [
+            {
+              id: initialDebtor?.id || ('d_' + Date.now()),
+              name: effectiveFriend,
+              totalShare: Number(numFriendShare.toFixed(2)),
+              installmentPlan: friendInstallmentPlan,
+              paidThisMonth: initialDebtor?.paidThisMonth || false
+            }
+          ];
+        }
+
         onSave({
-          ...form,
-          totalAmount: parseFloat(form.totalAmount) || 0,
-          currentInstallment: parseInt(form.currentInstallment) || 1,
-          totalInstallments: Math.max(1, parseInt(form.totalInstallments) || 1)
+          ...initialData,
+          description: description.trim() || 'Consumo sin descripción',
+          currency,
+          totalAmount: numTotal,
+          cardId,
+          currentInstallment: Math.max(1, parseInt(currentInstallment) || 1),
+          totalInstallments: Math.max(1, parseInt(totalInstallments) || 1),
+          splitMode,
+          debtors
         });
       };
+
+      const quotas = Math.max(1, parseInt(totalInstallments) || 1);
+      const bankMonthlyQuota = numTotal / quotas;
+      const friendMonthlyShare = friendInstallmentPlan === 'installment'
+        ? (numFriendShare / quotas)
+        : (friendInstallmentPlan === 'single_current' ? numFriendShare : 0);
+      const myMonthlyPocket = Math.max(0, bankMonthlyQuota - friendMonthlyShare);
 
       return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="w-full max-w-xl theme-surface border p-6 max-h-[92vh] overflow-y-auto shadow-2xl space-y-4">
             <div className="flex justify-between items-center pb-3 border-b theme-border">
-              <h3 className="text-lg font-black">{form.id ? 'Editar Compra / Consumo' : 'Registrar Nueva Compra'}</h3>
-              <button onClick={onClose}>✕</button>
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-400">Control Inteligente de Cuotas</span>
+                <h3 className="text-lg font-black">{initialData.id ? 'Editar Compra / Consumo' : 'Registrar Nueva Compra'}</h3>
+              </div>
+              <button onClick={onClose} className="px-3 py-1 rounded-xl theme-elevated text-xs font-bold">✕</button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
@@ -6061,160 +6462,339 @@ end $$;`;
                 <label className="block font-bold mb-1">Descripción de la Compra</label>
                 <input
                   required
-                  value={form.description}
-                  onChange={e => setForm({ ...form, description: e.target.value })}
+                  placeholder="Ej. Cena con amigos, Laptop, Ropa Saga..."
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
                   className="w-full p-2.5 rounded-xl bg-black/40 border theme-border text-sm font-bold"
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-2.5">
+              {/* Moneda, Monto Total y Tarjeta */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <div>
                   <label className="block font-bold mb-1">Moneda</label>
                   <select
-                    value={form.currency}
-                    onChange={e => setForm({ ...form, currency: e.target.value })}
+                    value={currency}
+                    onChange={e => setCurrency(e.target.value)}
                     className="w-full p-2.5 rounded-xl bg-black/40 border theme-border font-bold"
                   >
-                    <option value="PEN">S/ PEN</option>
-                    <option value="USD">$ USD</option>
+                    <option value="PEN">S/ Soles (PEN)</option>
+                    <option value="USD">$ Dólares (USD)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold mb-1">Monto Total</label>
+                  <label className="block font-bold mb-1 text-emerald-400">
+                    Monto Total * {currency === 'USD' ? '($)' : '(S/)'}
+                  </label>
                   <input
                     required
                     type="number"
                     step="0.01"
-                    value={form.totalAmount}
-                    onChange={e => setForm({ ...form, totalAmount: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-black/40 border theme-border font-bold"
+                    placeholder="0.00"
+                    value={totalAmount}
+                    onChange={e => {
+                      const nextTot = e.target.value;
+                      setTotalAmount(nextTot);
+                      const parsed = parseFloat(nextTot) || 0;
+                      if (splitMode === 'split50') setFriendShare((parsed / 2).toFixed(2));
+                      else if (splitMode === 'friend100') setFriendShare(parsed.toFixed(2));
+                    }}
+                    className="w-full p-2.5 rounded-xl bg-black/50 border theme-border font-mono-num font-black text-sm text-emerald-300"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold mb-1">Tarjeta</label>
+                  <label className="block font-bold mb-1">Tarjeta de Crédito</label>
                   <select
-                    value={form.cardId}
-                    onChange={e => setForm({ ...form, cardId: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-black/40 border theme-border"
+                    value={cardId}
+                    onChange={e => setCardId(e.target.value)}
+                    className="w-full p-2.5 rounded-xl bg-black/40 border theme-border font-bold"
                   >
-                    {cards.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    {cards.map(c => (
+                      <option key={c.id} value={c.id}>{c.name} ({c.currency || 'PEN'})</option>
+                    ))}
                   </select>
                 </div>
               </div>
 
+              {/* Cuotas */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold mb-1">Cuota Actual</label>
                   <input
                     type="number"
                     min="1"
-                    value={form.currentInstallment}
-                    onChange={e => setForm({ ...form, currentInstallment: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-black/40 border theme-border"
+                    value={currentInstallment}
+                    onChange={e => setCurrentInstallment(e.target.value)}
+                    className="w-full p-2 rounded-xl bg-black/40 border theme-border font-mono-num"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold mb-1">Total Cuotas</label>
+                  <label className="block font-bold mb-1">Total de Cuotas</label>
                   <input
                     type="number"
                     min="1"
-                    value={form.totalInstallments}
-                    onChange={e => setForm({ ...form, totalInstallments: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-black/40 border theme-border"
+                    value={totalInstallments}
+                    onChange={e => setTotalInstallments(e.target.value)}
+                    className="w-full p-2 rounded-xl bg-black/40 border theme-border font-mono-num"
                   />
                 </div>
               </div>
 
-              {/* Split Modes */}
+              {/* SECCIÓN DIVISIÓN INTELIGENTE DE DINERO */}
               <div className="p-4 rounded-2xl theme-elevated border space-y-3">
-                <label className="block font-bold text-emerald-400">División de la Compra:</label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <button type="button" onClick={() => applyPreset('own')} className={`p-2 rounded-xl font-bold border ${form.splitMode === 'own' ? 'theme-accent-bg' : 'bg-black/30'}`}>100% Mío</button>
-                  <button type="button" onClick={() => applyPreset('split50')} className={`p-2 rounded-xl font-bold border ${form.splitMode === 'split50' ? 'theme-accent-bg' : 'bg-black/30'}`}>50/50 Mitad</button>
-                  <button type="button" onClick={() => applyPreset('equalN')} className={`p-2 rounded-xl font-bold border ${form.splitMode === 'equalN' ? 'theme-accent-bg' : 'bg-black/30'}`}>Partes Iguales (1/N)</button>
-                  <button type="button" onClick={() => applyPreset('friend100')} className={`p-2 rounded-xl font-bold border ${form.splitMode === 'friend100' ? 'theme-accent-bg' : 'bg-black/30'}`}>100% Amigo</button>
+                <div className="flex justify-between items-center">
+                  <label className="font-bold text-xs uppercase tracking-wider text-indigo-400">
+                    División del Gasto con Amigos / Terceros:
+                  </label>
+                  {numTotal > 0 && (
+                    <span className="text-[11px] font-mono-num text-white/80">
+                      Total: <strong>{currency === 'USD' ? '$' : 'S/'} {numTotal.toFixed(2)}</strong>
+                    </span>
+                  )}
                 </div>
 
-                {form.splitMode !== 'own' && (
-                  <div className="space-y-3 pt-2 border-t theme-border">
-                    <span className="block text-[11px] theme-text-muted">Toca un amigo guardado o escribe un nombre nuevo abajo:</span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {friends.map(f => (
-                        <button
-                          key={f}
-                          type="button"
-                          onClick={() => applyPreset(form.splitMode, f)}
-                          className="px-2.5 py-1 rounded-xl bg-black/50 border theme-border font-bold hover:border-emerald-400"
-                        >
-                          👤 {f}
-                        </button>
-                      ))}
+                {/* 4 Pestañas de Modo de División */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleSplitModeChange('own')}
+                    className={`p-2.5 rounded-xl font-bold border text-center transition-all ${
+                      splitMode === 'own' ? 'theme-accent-bg shadow-md text-white' : 'bg-black/30 hover:bg-black/50 text-slate-300'
+                    }`}
+                  >
+                    👤 100% Mío
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSplitModeChange('custom_manual')}
+                    className={`p-2.5 rounded-xl font-bold border text-center transition-all ${
+                      splitMode === 'custom_manual' ? 'theme-accent-bg shadow-md text-white' : 'bg-black/30 hover:bg-black/50 text-slate-300'
+                    }`}
+                  >
+                    ✍️ Manual
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSplitModeChange('split50')}
+                    className={`p-2.5 rounded-xl font-bold border text-center transition-all ${
+                      splitMode === 'split50' ? 'theme-accent-bg shadow-md text-white' : 'bg-black/30 hover:bg-black/50 text-slate-300'
+                    }`}
+                  >
+                    ⚖️ 50 / 50 Mitad
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSplitModeChange('friend100')}
+                    className={`p-2.5 rounded-xl font-bold border text-center transition-all ${
+                      splitMode === 'friend100' ? 'theme-accent-bg shadow-md text-white' : 'bg-black/30 hover:bg-black/50 text-slate-300'
+                    }`}
+                  >
+                    👥 100% Amigo
+                  </button>
+                </div>
+
+                {splitMode !== 'own' && (
+                  <div className="space-y-3 pt-3 border-t theme-border">
+                    {/* Alerta si el monto total aún no se ha ingresado */}
+                    {numTotal <= 0 && (
+                      <div className="p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px]">
+                        💡 Primero ingresa el <strong>Monto Total de la Compra</strong> arriba para calcular las partes automáticamente.
+                      </div>
+                    )}
+
+                    {/* Selector de Amigo */}
+                    <div>
+                      <span className="block text-[11px] theme-text-muted mb-1.5 font-bold">
+                        ¿Para quién es la compra? (Selecciona o escribe el nombre):
+                      </span>
+                      <div className="flex flex-wrap gap-1.5 mb-2">
+                        {friends.map(f => (
+                          <button
+                            key={f}
+                            type="button"
+                            onClick={() => { setFriendName(f); setNewFriendInput(''); }}
+                            className={`px-2.5 py-1 rounded-xl border text-[11px] font-bold transition-all ${
+                              friendName === f && !newFriendInput ? 'bg-emerald-600 text-white border-emerald-400 shadow' : 'bg-black/40 hover:border-emerald-500/50'
+                            }`}
+                          >
+                            👤 {f}
+                          </button>
+                        ))}
+                      </div>
+                      <input
+                        placeholder="O escribe un nuevo nombre de amigo (ej. Carlos, Don Erick, Cuñada)..."
+                        value={newFriendInput || (friends.includes(friendName) ? '' : friendName)}
+                        onChange={e => {
+                          setNewFriendInput(e.target.value);
+                          setFriendName(e.target.value);
+                        }}
+                        className="w-full p-2 rounded-xl bg-black/40 border theme-border font-bold text-emerald-300"
+                      />
                     </div>
 
-                    <div className="flex gap-2">
-                      <input
-                        placeholder="Escribir nombre de amigo..."
-                        value={newFriendInput}
-                        onChange={e => setNewFriendInput(e.target.value)}
-                        className="flex-1 p-2 rounded-xl bg-black/40 border theme-border"
-                      />
-                      <input
-                        type="number"
-                        step="0.01"
-                        placeholder="Monto parte"
-                        value={customShareInput}
-                        onChange={e => setCustomShareInput(e.target.value)}
-                        className="w-28 p-2 rounded-xl bg-black/40 border theme-border"
-                      />
-                      <button type="button" onClick={addCustomDebtor} className="px-3 py-2 rounded-xl bg-emerald-600 text-white font-bold">
-                        + Asignar
-                      </button>
-                    </div>
-
-                    {form.debtors.map((d, idx) => (
-                      <div key={d.id} className="flex items-center justify-between p-2 rounded-xl bg-black/40 border theme-border">
-                        <input
-                          type="text"
-                          value={d.name}
-                          onChange={e => {
-                            const next = [...form.debtors];
-                            next[idx] = { ...d, name: e.target.value };
-                            setForm({ ...form, debtors: next });
-                          }}
-                          className="notion-inline-input font-bold text-emerald-400 px-2 py-0.5"
-                        />
-                        <div className="flex items-center gap-2">
+                    {/* INPUTS DE DIVISIÓN MANUAL: AMIGO Y TU PARTE */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      <div className="p-3 rounded-xl bg-black/40 border theme-border space-y-1">
+                        <label className="block font-bold text-emerald-400 text-[11px]">
+                          Parte de tu Amigo ({friendName || 'Amigo'}):
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-2 font-bold theme-text-muted">{currency === 'USD' ? '$' : 'S/'}</span>
                           <input
                             type="number"
                             step="0.01"
-                            value={d.totalShare}
-                            onChange={e => {
-                              const next = [...form.debtors];
-                              next[idx] = { ...d, totalShare: parseFloat(e.target.value) || 0 };
-                              setForm({ ...form, debtors: next });
-                            }}
-                            className="w-24 p-1 rounded bg-black/60 border theme-border text-right font-mono-num font-bold"
+                            placeholder="0.00"
+                            value={friendShare}
+                            onChange={e => handleFriendShareChange(e.target.value)}
+                            className={`w-full p-2 pl-9 rounded-lg bg-black/60 border font-mono-num font-black text-sm ${
+                              isExceeded ? 'border-rose-500 text-rose-400 ring-1 ring-rose-500' : 'theme-border text-emerald-300'
+                            }`}
                           />
-                          <button
-                            type="button"
-                            onClick={() => setForm({ ...form, debtors: form.debtors.filter(x => x.id !== d.id) })}
-                            className="text-rose-400 font-bold px-1"
-                          >
-                            ✕
-                          </button>
+                        </div>
+                        <span className="text-[10px] theme-text-muted block">
+                          Representa el {friendPct.toFixed(1)}% del total
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-black/40 border theme-border space-y-1">
+                        <label className="block font-bold text-indigo-400 text-[11px]">
+                          Tu Parte Personal (Calculada):
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-2 font-bold theme-text-muted">{currency === 'USD' ? '$' : 'S/'}</span>
+                          <input
+                            type="number"
+                            step="0.01"
+                            placeholder="0.00"
+                            value={numMyShare.toFixed(2)}
+                            onChange={e => handleMyShareChange(e.target.value)}
+                            className="w-full p-2 pl-9 rounded-lg bg-black/60 border theme-border font-mono-num font-black text-sm text-indigo-300"
+                          />
+                        </div>
+                        <span className="text-[10px] theme-text-muted block">
+                          Representa el {myPct.toFixed(1)}% del total
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* ALERTA DE EXCESO DE MONTO */}
+                    {isExceeded && (
+                      <div className="p-2.5 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[11px] font-bold flex items-center gap-2">
+                        <span>⚠️</span>
+                        <span>
+                          El monto asignado al amigo ({currency === 'USD' ? '$' : 'S/'} {numFriendShare.toFixed(2)}) no puede exceder el monto total de la compra ({currency === 'USD' ? '$' : 'S/'} {numTotal.toFixed(2)}).
+                        </span>
+                      </div>
+                    )}
+
+                    {/* BARRA VISUAL DE DIVISIÓN */}
+                    {numTotal > 0 && !isExceeded && (
+                      <div className="space-y-1">
+                        <div className="w-full h-3 rounded-full bg-black/60 overflow-hidden flex border border-white/10">
+                          <div
+                            style={{ width: `${myPct}%` }}
+                            className="bg-indigo-500 h-full transition-all duration-300"
+                            title={`Tú: ${currency} ${numMyShare.toFixed(2)} (${myPct.toFixed(0)}%)`}
+                          />
+                          <div
+                            style={{ width: `${friendPct}%` }}
+                            className="bg-emerald-500 h-full transition-all duration-300"
+                            title={`${friendName || 'Amigo'}: ${currency} ${numFriendShare.toFixed(2)} (${friendPct.toFixed(0)}%)`}
+                          />
+                        </div>
+                        <div className="flex justify-between text-[10px] font-mono-num">
+                          <span className="text-indigo-400 font-bold">Tú: {currency === 'USD' ? '$' : 'S/'} {numMyShare.toFixed(2)} ({myPct.toFixed(0)}%)</span>
+                          <span className="text-emerald-400 font-bold">{friendName || 'Amigo'}: {currency === 'USD' ? '$' : 'S/'} {numFriendShare.toFixed(2)} ({friendPct.toFixed(0)}%)</span>
                         </div>
                       </div>
-                    ))}
+                    )}
+
+                    {/* PLANIFICACIÓN DE CUOTAS PARA EL AMIGO (SI TIENE CUOTAS > 1) */}
+                    {quotas > 1 && (
+                      <div className="p-3 rounded-xl bg-black/40 border theme-border space-y-2 mt-2">
+                        <label className="block font-bold text-amber-300 text-[11px]">
+                          🗓️ ¿Cómo y cuándo pagará tu amigo sus {currency === 'USD' ? '$' : 'S/'} {numFriendShare.toFixed(2)}?
+                        </label>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setFriendInstallmentPlan('installment')}
+                            className={`p-2 rounded-lg border text-left text-[11px] font-bold transition-all ${
+                              friendInstallmentPlan === 'installment' ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-black/30 border-white/10 text-white/70'
+                            }`}
+                          >
+                            <div>📅 En {quotas} cuotas</div>
+                            <div className="text-[10px] opacity-75 font-normal">Igual que la tarjeta</div>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setFriendInstallmentPlan('single_current')}
+                            className={`p-2 rounded-lg border text-left text-[11px] font-bold transition-all ${
+                              friendInstallmentPlan === 'single_current' ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-black/30 border-white/10 text-white/70'
+                            }`}
+                          >
+                            <div>⚡ 1 pago este mes</div>
+                            <div className="text-[10px] opacity-75 font-normal">Al contado inmediato</div>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setFriendInstallmentPlan('single_next')}
+                            className={`p-2 rounded-lg border text-left text-[11px] font-bold transition-all ${
+                              friendInstallmentPlan === 'single_next' ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-black/30 border-white/10 text-white/70'
+                            }`}
+                          >
+                            <div>🗓️ Próximo mes</div>
+                            <div className="text-[10px] opacity-75 font-normal">1 pago proyectado</div>
+                          </button>
+                        </div>
+
+                        {/* CUADRO INFORMATIVO DE PROYECCIÓN */}
+                        <div className="p-2.5 rounded-lg bg-black/60 border border-amber-500/30 text-[11px] space-y-1">
+                          <div className="text-white font-bold flex justify-between">
+                            <span>Cobro mensual del banco:</span>
+                            <span className="font-mono-num">{currency === 'USD' ? '$' : 'S/'} {bankMonthlyQuota.toFixed(2)} / mes ({quotas} cuotas)</span>
+                          </div>
+                          <div className="text-emerald-400 flex justify-between">
+                            <span>{friendName || 'Amigo'} te pagará:</span>
+                            <span className="font-mono-num font-bold">
+                              {friendInstallmentPlan === 'installment'
+                                ? `${currency === 'USD' ? '$' : 'S/'} ${(numFriendShare / quotas).toFixed(2)} / mes`
+                                : friendInstallmentPlan === 'single_current'
+                                ? `${currency === 'USD' ? '$' : 'S/'} ${numFriendShare.toFixed(2)} (este mes)`
+                                : `${currency === 'USD' ? '$' : 'S/'} ${numFriendShare.toFixed(2)} (próximo mes)`}
+                            </span>
+                          </div>
+                          <div className="text-indigo-300 flex justify-between pt-1 border-t border-white/10">
+                            <span>Tu pago neto mensual de bolsillo:</span>
+                            <span className="font-mono-num font-bold">
+                              {currency === 'USD' ? '$' : 'S/'} {myMonthlyPocket.toFixed(2)} / mes
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
 
               <div className="flex gap-2 pt-2">
                 {onDelete && (
-                  <button type="button" onClick={onDelete} className="px-4 py-2.5 rounded-xl bg-rose-500/20 text-rose-400 font-bold">🗑️ Borrar</button>
+                  <button type="button" onClick={onDelete} className="px-4 py-2.5 rounded-xl bg-rose-500/20 text-rose-400 font-bold hover:bg-rose-500/30 transition-colors">
+                    🗑️ Borrar
+                  </button>
                 )}
-                <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl theme-elevated font-bold">Cancelar</button>
-                <button type="submit" className="flex-1 py-2.5 rounded-xl theme-accent-bg font-bold">Guardar</button>
+                <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl theme-elevated font-bold">
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isExceeded}
+                  className={`flex-1 py-2.5 rounded-xl font-bold transition-all ${
+                    isExceeded ? 'bg-slate-700 text-slate-500 cursor-not-allowed' : 'theme-accent-bg text-white shadow-lg'
+                  }`}
+                >
+                  💾 Guardar Compra
+                </button>
               </div>
             </form>
           </div>
@@ -6237,7 +6817,7 @@ end $$;`;
             <div className="flex items-center justify-between pb-3 border-b theme-border">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">Personalización Total</span>
-                <h3 className="text-xl font-black mt-0.5">🎨 Estudio de Paletas, Logo y Estilo (v1.1.0)</h3>
+                <h3 className="text-xl font-black mt-0.5">🎨 Estudio de Paletas, Logo y Estilo (v1.2.0)</h3>
               </div>
               <button onClick={onClose} className="px-3 py-1.5 rounded-xl theme-elevated font-bold text-xs">✕ Cerrar</button>
             </div>
@@ -6334,7 +6914,7 @@ end $$;`;
           const res = await Notification.requestPermission();
           setPermState(res);
           if (res === 'granted') {
-            new Notification('🔔 Gestor de deudas El Shuashe v1.1.0', {
+            new Notification('🔔 Gestor de deudas El Shuashe v1.2.0', {
               body: '¡Notificaciones activadas con éxito! Te avisaremos de tus fechas de corte y pagos.',
               icon: 'logo.jpg'
             });
@@ -6350,7 +6930,7 @@ end $$;`;
                 <span className="text-xl">🔔</span>
                 <div>
                   <h3 className="text-lg font-black text-white">Alertas y Notificaciones</h3>
-                  <p className="text-[11px] theme-text-muted">Centro de avisos inteligentes de El Shuashe v1.1.0</p>
+                  <p className="text-[11px] theme-text-muted">Centro de avisos inteligentes de El Shuashe v1.2.0</p>
                 </div>
               </div>
               <button onClick={onClose} className="p-1 rounded-xl theme-elevated hover:text-white text-slate-400">✕</button>
@@ -6422,7 +7002,7 @@ end $$;`;
             </div>
 
             <div className="pt-2 border-t theme-border flex justify-between items-center text-[10px] theme-text-muted">
-              <span>Gestor de deudas El Shuashe v1.1.0</span>
+              <span>Gestor de deudas El Shuashe v1.2.0</span>
               <button onClick={onClose} className="px-4 py-1.5 rounded-xl theme-elevated font-bold text-xs hover:text-white">
                 Cerrar
               </button>
@@ -6523,40 +7103,583 @@ end $$;`;
 
     function AddCardModal({ onClose, onSave }) {
       const [form, setForm] = useState({
-        name: '', bank: '', currency: 'PEN', limit: 2000, closingDay: 15, dueDay: 5,
-        dueMonthLabel: '05 Mensual', desgravamenType: 'percent', desgravamenValue: 0.25,
-        desgravamenCap: 20, membershipCost: 0, color: '#ec4899', gradient: 'from-pink-950 to-slate-900'
+        name: '',
+        bank: 'BCP',
+        currency: 'PEN',
+        limit: 3000,
+        closingDay: 15,
+        dueDay: 5,
+        dueMonthLabel: '05 Mensual',
+        desgravamenType: 'percent',
+        desgravamenValue: 0.25,
+        desgravamenCap: 20,
+        membershipCost: 0,
+        membershipCurrency: 'PEN',
+        color: '#eab308',
+        gradient: 'from-amber-600 via-yellow-500 to-amber-700',
+        customCss: 'linear-gradient(135deg, #d97706 0%, #eab308 50%, #b45309 100%)'
       });
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onSave({
+          ...form,
+          limit: parseFloat(form.limit) || 0,
+          closingDay: parseInt(form.closingDay) || 1,
+          dueDay: parseInt(form.dueDay) || 5,
+          desgravamenValue: parseFloat(form.desgravamenValue) || 0,
+          desgravamenCap: parseFloat(form.desgravamenCap) || 0,
+          membershipCost: parseFloat(form.membershipCost) || 0
+        });
+      };
+
       return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-md theme-surface border p-6 space-y-4 text-xs">
-            <h3 className="text-lg font-black">Nueva Tarjeta de Crédito</h3>
-            <input
-              placeholder="Nombre (Ej. Interbank Amex)"
-              value={form.name}
-              onChange={e => setForm({ ...form, name: e.target.value })}
-              className="w-full p-2.5 rounded-xl bg-black/40 border theme-border font-bold"
-            />
-            <div className="grid grid-cols-2 gap-2">
-              <select
-                value={form.currency}
-                onChange={e => setForm({ ...form, currency: e.target.value })}
-                className="p-2.5 rounded-xl bg-black/40 border theme-border font-bold"
-              >
-                <option value="PEN">Soles (S/)</option>
-                <option value="USD">Dólares ($)</option>
-              </select>
-              <input
-                type="number"
-                placeholder="Línea Total"
-                value={form.limit}
-                onChange={e => setForm({ ...form, limit: e.target.value })}
-                className="p-2.5 rounded-xl bg-black/40 border theme-border"
-              />
+          <div className="w-full max-w-lg theme-surface border p-6 max-h-[92vh] overflow-y-auto shadow-2xl space-y-4 text-xs">
+            <div className="flex justify-between items-center pb-3 border-b theme-border">
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-400">Emisión de Tarjeta</span>
+                <h3 className="text-lg font-black">Registrar Nueva Tarjeta de Crédito</h3>
+              </div>
+              <button onClick={onClose} className="px-3 py-1 rounded-xl theme-elevated font-bold text-xs">✕</button>
             </div>
-            <div className="flex gap-2">
-              <button onClick={onClose} className="flex-1 py-2.5 rounded-xl theme-elevated font-bold">Cancelar</button>
-              <button onClick={() => onSave(form)} className="flex-1 py-2.5 rounded-xl theme-accent-bg font-bold">Crear Tarjeta</button>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block font-bold mb-1">Nombre de la Tarjeta</label>
+                <input
+                  required
+                  placeholder="Ej. BCP Oro, CMR Falabella Verde, BBVA Cero..."
+                  value={form.name}
+                  onChange={e => setForm({ ...form, name: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-black/40 border theme-border font-bold text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                <div>
+                  <label className="block font-bold mb-1">Banco Emisor</label>
+                  <input
+                    value={form.bank}
+                    onChange={e => setForm({ ...form, bank: e.target.value })}
+                    className="w-full p-2 rounded-xl bg-black/40 border theme-border font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold mb-1">Moneda</label>
+                  <select
+                    value={form.currency}
+                    onChange={e => setForm({ ...form, currency: e.target.value })}
+                    className="w-full p-2 rounded-xl bg-black/40 border theme-border font-bold"
+                  >
+                    <option value="PEN">S/ Soles (PEN)</option>
+                    <option value="USD">$ Dólares (USD)</option>
+                  </select>
+                </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="block font-bold mb-1">Línea de Crédito</label>
+                  <input
+                    required
+                    type="number"
+                    value={form.limit}
+                    onChange={e => setForm({ ...form, limit: e.target.value })}
+                    className="w-full p-2 rounded-xl bg-black/40 border theme-border font-mono-num font-bold text-emerald-300"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2.5">
+                <div>
+                  <label className="block font-bold mb-1">Día de Cierre</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="31"
+                    value={form.closingDay}
+                    onChange={e => setForm({ ...form, closingDay: e.target.value })}
+                    className="w-full p-2 rounded-xl bg-black/40 border theme-border font-mono-num"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold mb-1">Día de Pago</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="31"
+                    value={form.dueDay}
+                    onChange={e => {
+                      const d = e.target.value;
+                      setForm({
+                        ...form,
+                        dueDay: d,
+                        dueMonthLabel: (parseInt(d) < 10 ? '0' + parseInt(d) : d) + ' Mensual'
+                      });
+                    }}
+                    className="w-full p-2 rounded-xl bg-black/40 border theme-border font-mono-num"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold mb-1">Etiqueta de Pago</label>
+                  <input
+                    value={form.dueMonthLabel}
+                    onChange={e => setForm({ ...form, dueMonthLabel: e.target.value })}
+                    className="w-full p-2 rounded-xl bg-black/40 border theme-border font-bold text-amber-300"
+                  />
+                </div>
+              </div>
+
+              {/* SELECCIÓN DE PRESET DE BANCO Y DEGRADADO */}
+              <div className="p-3.5 rounded-2xl theme-elevated border space-y-2.5">
+                <label className="block font-bold text-xs uppercase text-amber-300 tracking-wider">
+                  🎨 Diseño y Color Real de la Tarjeta (Presets de Bancos):
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {BANK_CARD_THEMES.map(theme => (
+                    <button
+                      key={theme.id}
+                      type="button"
+                      onClick={() => {
+                        setForm({
+                          ...form,
+                          bank: form.bank === 'BCP' ? theme.bank : form.bank,
+                          color: theme.color,
+                          gradient: theme.gradient,
+                          customCss: theme.css
+                        });
+                      }}
+                      className={`p-2 rounded-xl border text-left flex items-center gap-2 transition-all ${
+                        form.customCss === theme.css
+                          ? 'border-amber-400 bg-amber-500/20 ring-1 ring-amber-400 shadow-md'
+                          : 'border-white/10 bg-black/40 hover:bg-black/60'
+                      }`}
+                    >
+                      <span className="w-3.5 h-3.5 rounded-full shrink-0 shadow" style={{ background: theme.css || theme.color }} />
+                      <span className="text-[11px] font-bold text-white truncate">{theme.chipText}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <span className="text-[11px] theme-text-muted">Color libre:</span>
+                  <input
+                    type="color"
+                    value={form.color}
+                    onChange={e => {
+                      const hex = e.target.value;
+                      setForm({
+                        ...form,
+                        color: hex,
+                        gradient: '',
+                        customCss: `linear-gradient(135deg, ${hex} 0%, #090d16 100%)`
+                      });
+                    }}
+                    className="w-7 h-7 rounded cursor-pointer bg-transparent border border-white/20 p-0.5"
+                  />
+                  <span className="text-[10px] font-mono theme-text-muted">{form.color}</span>
+                </div>
+
+                {/* Previsualización en vivo */}
+                <div
+                  className="p-4 rounded-2xl text-white shadow-xl border border-white/20 transition-all mt-2"
+                  style={{ background: form.customCss || undefined }}
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <span className="text-[9px] uppercase tracking-widest text-white/70 font-bold">
+                        {form.bank || 'BANCO'} • {form.currency}
+                      </span>
+                      <h4 className="text-base font-black mt-0.5">{form.name || 'Nombre de la Tarjeta'}</h4>
+                    </div>
+                    <span className="text-base">💳</span>
+                  </div>
+                  <div className="mt-3 flex justify-between items-end text-[10px] text-white/80">
+                    <div>Línea: {form.currency === 'USD' ? '$' : 'S/'} {Number(form.limit || 0).toLocaleString()}</div>
+                    <div>Pago: {form.dueMonthLabel || '05 Mensual'}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl theme-elevated font-bold">
+                  Cancelar
+                </button>
+                <button type="submit" className="flex-1 py-2.5 rounded-xl theme-accent-bg font-bold shadow-lg">
+                  + Registrar Tarjeta
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // 17. PROFILE SETTINGS MODAL (CENTRAL PORTAL v1.2.0)
+    // ==========================================
+    function ProfileSettingsModal({
+      profile, setProfile,
+      themeKey, setThemeKey,
+      customColors, setCustomColors,
+      currentSession, currentAccount, permissions,
+      accounts, friends, cloudStatus,
+      workspaceId, setWorkspaceId,
+      supabaseUrl, setSupabaseUrl,
+      supabaseAnonKey, setSupabaseAnonKey,
+      cloudProvider, setCloudProvider,
+      firebaseConfigStr, setFirebaseConfigStr,
+      restCloudUrl, setRestCloudUrl,
+      onDownloadVercelReadyHTML,
+      onOpenAccountsManager,
+      onOpenFriendsManager,
+      onOpenTemplateModal,
+      onExportJSON,
+      onImportJSON,
+      onLogout,
+      triggerToast,
+      onClose
+    }) {
+      const [activeTab, setActiveTab] = useState('theme'); // 'theme' | 'cloud' | 'accounts' | 'backup'
+      const [showConfirmLogout, setShowConfirmLogout] = useState(false);
+      const [localWs, setLocalWs] = useState(workspaceId || '');
+      const [localSbUrl, setLocalSbUrl] = useState(supabaseUrl || '');
+      const [localSbKey, setLocalSbKey] = useState(supabaseAnonKey || '');
+
+      const handleSaveCloud = (e) => {
+        e.preventDefault();
+        setWorkspaceId(localWs.trim() || 'ws_default');
+        setSupabaseUrl(localSbUrl.trim());
+        setSupabaseAnonKey(localSbKey.trim());
+        triggerToast('✅ Credenciales de nube guardadas');
+      };
+
+      return (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl theme-surface border p-6 max-h-[92vh] overflow-y-auto shadow-2xl space-y-6">
+            {/* Header del Perfil */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b theme-border">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center justify-center text-2xl font-bold shadow-inner">
+                  {currentAccount.avatar || '👤'}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-black text-white">{currentAccount.name}</h3>
+                    <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${permissions.roleMeta.bgColor} ${permissions.roleMeta.textColor}`}>
+                      {permissions.roleMeta.badge}
+                    </span>
+                  </div>
+                  <div className="text-xs theme-text-muted mt-0.5 flex items-center gap-2">
+                    <span>DNI {currentAccount.dni}</span>
+                    <span>•</span>
+                    <span className="font-mono text-[11px] text-emerald-400">Workspace: {workspaceId}</span>
+                  </div>
+                </div>
+              </div>
+              <button onClick={onClose} className="px-3 py-1.5 rounded-xl theme-elevated text-xs font-bold self-start sm:self-center">
+                ✕ Cerrar
+              </button>
+            </div>
+
+            {/* Pestañas de Navegación del Perfil */}
+            <div className="flex flex-wrap gap-1.5 p-1 rounded-2xl theme-elevated border">
+              <button
+                onClick={() => setActiveTab('theme')}
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                  activeTab === 'theme' ? 'theme-accent-bg text-white shadow' : 'theme-text-muted hover:text-white'
+                }`}
+              >
+                🎨 Paleta & Temas
+              </button>
+              <button
+                onClick={() => setActiveTab('cloud')}
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                  activeTab === 'cloud' ? 'theme-accent-bg text-white shadow' : 'theme-text-muted hover:text-white'
+                }`}
+              >
+                ⚡ Nube en Tiempo Real
+              </button>
+              <button
+                onClick={() => setActiveTab('accounts')}
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                  activeTab === 'accounts' ? 'theme-accent-bg text-white shadow' : 'theme-text-muted hover:text-white'
+                }`}
+              >
+                👥 Roles & Cuentas ({accounts.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('backup')}
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                  activeTab === 'backup' ? 'theme-accent-bg text-white shadow' : 'theme-text-muted hover:text-white'
+                }`}
+              >
+                💾 Copia de Seguridad & Datos
+              </button>
+            </div>
+
+            {/* PESTAÑA 1: PALETA & TEMAS */}
+            {activeTab === 'theme' && (
+              <div className="space-y-5">
+                {/* Selector de Logo */}
+                <div className="p-4 rounded-2xl theme-elevated border flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div>
+                    <div className="font-bold">Estilo del Logo de la Aplicación</div>
+                    <div className="theme-text-muted">Elige el emblema 3D verde oficial o la "S" dinámica reactiva.</div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setProfile({ ...profile, logoStyle: 'official' })}
+                      className={`px-3 py-2 rounded-xl font-bold border ${
+                        profile.logoStyle === 'official' || !profile.logoStyle ? 'theme-accent-bg text-white' : 'bg-black/30'
+                      }`}
+                    >
+                      ⭐ Logo Oficial 3D El Shuashe
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setProfile({ ...profile, logoStyle: 'dynamicS' })}
+                      className={`px-3 py-2 rounded-xl font-bold border ${
+                        profile.logoStyle === 'dynamicS' ? 'theme-accent-bg text-white' : 'bg-black/30'
+                      }`}
+                    >
+                      🔴🟢 "S" Dinámica
+                    </button>
+                  </div>
+                </div>
+
+                {/* 9 Paletas */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider theme-text-muted mb-3">
+                    Elige una de las 9 Paletas Predefinidas:
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    {Object.values(PRESET_THEMES).map(t => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setThemeKey(t.id)}
+                        className={`p-3 rounded-2xl border text-left flex items-center justify-between transition-all ${
+                          themeKey === t.id ? 'ring-2 ring-emerald-400 theme-elevated' : 'theme-elevated opacity-80 hover:opacity-100'
+                        }`}
+                      >
+                        <div className="font-bold text-xs truncate pr-2">{t.name}</div>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {t.swatch.map((hex, i) => (
+                            <span key={i} className="w-3.5 h-3.5 rounded-full border border-white/20" style={{ backgroundColor: hex }} />
+                          ))}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Sliders de Redondeo y Blur */}
+                <div className="p-4 rounded-2xl theme-elevated border grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label className="block font-bold mb-1">Radio de Tarjetas: {customColors.cardRadius || 20}px</label>
+                    <input
+                      type="range"
+                      min="12"
+                      max="32"
+                      value={customColors.cardRadius || 20}
+                      onChange={e => setCustomColors({ ...customColors, cardRadius: e.target.value })}
+                      className="w-full accent-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold mb-1">Desenfoque Glassmorphism: {customColors.glassBlur || 16}px</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="24"
+                      value={customColors.glassBlur || 16}
+                      onChange={e => setCustomColors({ ...customColors, glassBlur: e.target.value })}
+                      className="w-full accent-indigo-500"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* PESTAÑA 2: NUBE EN TIEMPO REAL */}
+            {activeTab === 'cloud' && (
+              <div className="space-y-4 text-xs">
+                <div className="p-4 rounded-2xl theme-elevated border flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className={`w-3 h-3 rounded-full ${cloudStatus === 'connected' ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'}`} />
+                    <div>
+                      <div className="font-bold text-sm">
+                        {cloudStatus === 'connected' ? '🟢 Conectado a la Nube (Tiempo Real)' : '🟡 Modo Local (Sin sincronización remota)'}
+                      </div>
+                      <div className="theme-text-muted text-[11px]">
+                        {cloudStatus === 'connected'
+                          ? 'Cualquier compra o tarjeta añadida en tu iPhone o Mac se sincroniza al instante.'
+                          : 'Tus datos se guardan de forma 100% segura en tu navegador local.'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <form onSubmit={handleSaveCloud} className="space-y-3 p-4 rounded-2xl theme-elevated border">
+                  <div>
+                    <label className="block font-bold mb-1">ID de tu Workspace</label>
+                    <input
+                      value={localWs}
+                      onChange={e => setLocalWs(e.target.value)}
+                      className="w-full p-2.5 rounded-xl bg-black/40 border theme-border font-mono-num font-bold text-emerald-400"
+                      placeholder="arnold-moreno-shuashe"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold mb-1">Supabase Project URL</label>
+                    <input
+                      value={localSbUrl}
+                      onChange={e => setLocalSbUrl(e.target.value)}
+                      className="w-full p-2.5 rounded-xl bg-black/40 border theme-border font-mono-num"
+                      placeholder="https://xyzabcdefghijklm.supabase.co"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold mb-1">Supabase Anon Key</label>
+                    <input
+                      type="password"
+                      value={localSbKey}
+                      onChange={e => setLocalSbKey(e.target.value)}
+                      className="w-full p-2.5 rounded-xl bg-black/40 border theme-border font-mono-num"
+                      placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    />
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <button type="submit" className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold">
+                      💾 Guardar y Conectar Nube
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onDownloadVercelReadyHTML({ provider: 'supabase', url: localSbUrl, anonKey: localSbKey, workspaceToBake: localWs })}
+                      className="px-4 py-2.5 rounded-xl theme-elevated border font-bold"
+                    >
+                      📥 Descargar HTML Vercel Ready
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* PESTAÑA 3: ROLES & CUENTAS */}
+            {activeTab === 'accounts' && (
+              <div className="space-y-4 text-xs">
+                <div className="p-4 rounded-2xl theme-elevated border flex justify-between items-center">
+                  <div>
+                    <h4 className="font-bold text-sm">Panel de Roles y Control de Acceso (RBAC)</h4>
+                    <p className="theme-text-muted mt-0.5">
+                      Hay <strong>{accounts.length} usuarios registrados</strong> en este sistema.
+                    </p>
+                  </div>
+                  {permissions.canManageAccounts && (
+                    <button
+                      onClick={onOpenAccountsManager}
+                      className="px-4 py-2 rounded-xl theme-accent-bg text-white font-bold"
+                    >
+                      ⚙️ Abrir Matriz de Permisos
+                    </button>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  {accounts.map(acc => (
+                    <div key={acc.id} className="p-3 rounded-xl bg-black/30 border theme-border flex justify-between items-center">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-base">{acc.avatar || '👤'}</span>
+                        <div>
+                          <div className="font-bold">{acc.name}</div>
+                          <div className="text-[10px] theme-text-muted">DNI: {acc.dni}</div>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-black/40 theme-text-muted border border-white/10">
+                        {acc.role}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* PESTAÑA 4: COPIA DE SEGURIDAD & DATOS */}
+            {activeTab === 'backup' && (
+              <div className="space-y-4 text-xs">
+                <div className="p-4 rounded-2xl theme-elevated border space-y-3">
+                  <h4 className="font-bold text-sm">Respaldo Local JSON</h4>
+                  <p className="theme-text-muted leading-relaxed">
+                    Descarga una copia completa de tus tarjetas, cuotas, amigos y compras en un archivo JSON ligero para conservarlo en tu computadora o restaurarlo cuando quieras.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                    <button
+                      type="button"
+                      onClick={onExportJSON}
+                      className="py-2.5 px-4 rounded-xl theme-accent-bg text-white font-bold text-center shadow"
+                    >
+                      ⬇️ Descargar Copia JSON
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onImportJSON}
+                      className="py-2.5 px-4 rounded-xl theme-elevated border font-bold text-center hover:bg-white/10"
+                    >
+                      ⬆️ Restaurar desde JSON
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl theme-elevated border flex justify-between items-center">
+                  <div>
+                    <h4 className="font-bold">Modo Plantilla</h4>
+                    <p className="theme-text-muted">Limpia la base de datos temporalmente para mostrársela a un amigo sin revelar tus datos reales.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={onOpenTemplateModal}
+                    className="px-4 py-2 rounded-xl theme-elevated border text-indigo-300 font-bold"
+                  >
+                    ✨ Modo Plantilla
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* SECCIÓN INFERIOR: BOTÓN SEGURO DE CERRAR SESIÓN */}
+            <div className="pt-4 border-t theme-border flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="text-[11px] theme-text-muted">
+                Sesión iniciada como <strong className="text-white">{currentSession?.name}</strong> (DNI {currentSession?.dni})
+              </div>
+
+              {!showConfirmLogout ? (
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmLogout(true)}
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow"
+                >
+                  <span>🚪</span>
+                  <span>Cerrar Sesión</span>
+                </button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold text-rose-300">¿Cerrar sesión ahora?</span>
+                  <button
+                    type="button"
+                    onClick={onLogout}
+                    className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs"
+                  >
+                    Sí, Salir
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmLogout(false)}
+                    className="px-3 py-1.5 rounded-xl theme-elevated text-xs font-bold"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -6588,8 +7711,57 @@ end $$;`;
       );
     }
 
+    // ==========================================
+    // 18. ERROR BOUNDARY (PROTECCIÓN TOTAL CONTRA PANTALLAS NEGRAS)
+    // ==========================================
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+      }
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+      componentDidCatch(error, errorInfo) {
+        console.error("App Crash intercepted by ErrorBoundary:", error, errorInfo);
+      }
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
+              <div className="max-w-md w-full bg-slate-900 border border-white/10 p-8 rounded-3xl shadow-2xl space-y-4">
+                <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-3xl mx-auto shadow-inner">
+                  🛡️
+                </div>
+                <h2 className="text-xl font-black">Sistema Financiero Protegido</h2>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Se interceptó un error de renderizado. Tus tarjetas, compras y datos están a salvo en tu almacenamiento seguro.
+                </p>
+                <div className="pt-2">
+                  <button
+                    onClick={() => {
+                      this.setState({ hasError: false });
+                      window.location.reload();
+                    }}
+                    className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg transition-all"
+                  >
+                    🔄 Recargar Pantalla
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
     const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
+    root.render(
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    );
   </script>
 </body>
 </html>
